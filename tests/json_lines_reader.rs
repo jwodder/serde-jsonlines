@@ -1,25 +1,11 @@
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
 use jsonlines::JsonLinesReader;
-use serde::Deserialize;
 use std::fs::File;
 use std::io::{BufRead, BufReader, ErrorKind, Result};
 use std::path::Path;
-
-#[derive(Debug, Deserialize, Eq, PartialEq)]
-struct Structure {
-    name: String,
-    size: i32,
-    on: bool,
-}
-
-#[derive(Debug, Deserialize, Eq, PartialEq)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-static DATA_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/data");
+mod common;
+use common::*;
 
 #[test]
 fn test_read_empty() {

@@ -1,22 +1,10 @@
 use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
 use jsonlines::JsonLinesWriter;
-use serde::Serialize;
 use std::fs::File;
 use std::io::Write;
-
-#[derive(Serialize)]
-struct Structure {
-    name: String,
-    size: i32,
-    on: bool,
-}
-
-#[derive(Serialize)]
-struct Point {
-    x: i32,
-    y: i32,
-}
+mod common;
+use common::*;
 
 #[test]
 fn test_write_one() {
