@@ -1,0 +1,6 @@
+{"name": "Foo Bar", "on":true,"size": 42 }
+{"name": "Unterminated",
+{ "name":"Quux", "on" : false ,"size": 23}
+Not JSON
+{"name": "No other fields"}
+ {"name": "Gnusto Cleesh" , "on": true, "size": 17}
