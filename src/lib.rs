@@ -158,6 +158,57 @@ impl<W: Write> JsonLinesWriter<W> {
 ///
 /// A `JsonLinesReader` wraps a [`std::io::BufRead`] instance and parses each
 /// line as a [`serde::de::DeserializeOwned`] value in JSON.
+///
+/// ```no_run
+/// use jsonlines::JsonLinesReader;
+/// use serde::Deserialize;
+/// use std::fs::{write, File};
+/// use std::io::BufReader;
+///
+/// #[derive(Debug, Deserialize, PartialEq)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// fn main() -> std::io::Result<()> {
+///     write(
+///         "example.jsonl",
+///         concat!(
+///             "{\"name\": \"Foo Bar\", \"on\":true,\"size\": 42 }\n",
+///             "{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n",
+///             " {\"name\": \"Gnusto Cleesh\" , \"on\": true, \"size\": 17}\n",
+///         ),
+///     )?;
+///     let fp = BufReader::new(File::open("example.jsonl")?);
+///     let reader = JsonLinesReader::new(fp);
+///     let items = reader
+///         .iter::<Structure>()
+///         .collect::<std::io::Result<Vec<_>>>()?;
+///     assert_eq!(
+///         items,
+///         [
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ]
+///     );
+///     Ok(())
+/// }
+/// ```
 #[derive(Debug)]
 pub struct JsonLinesReader<R> {
     inner: R,
