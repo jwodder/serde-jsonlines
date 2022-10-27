@@ -5,12 +5,14 @@
 //! a single line and terminated by a newline sequence.
 //!
 //! This crate provides functionality for reading & writing JSON Lines
-//! documents, either all at once or line by line.
+//! documents (whether all at once or line by line) using [`serde`]'s
+//! serialization & deserialization features.
+
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::{BufRead, Result, Write};
 use std::marker::PhantomData;
 
-/// A structure for writing JSON values as JSON Lines
+/// A structure for writing JSON values as JSON Lines.
 ///
 /// A `JsonLinesWriter` wraps a [`std::io::Write`] instance and writes
 /// [`serde::Serialize`] values to it by serializing each one as a single line
@@ -33,10 +35,11 @@ impl<W> JsonLinesWriter<W> {
 }
 
 impl<W: Write> JsonLinesWriter<W> {
-    /// Serialize & write a value to the underlying writer, followed by a
-    /// newline.
+    /// Serialize a value as a line of JSON and write it to the underlying
+    /// writer, followed by a newline.
     ///
-    /// Note that each call may write a different type of value.
+    /// Note that separate calls to this method may write different types of
+    /// values.
     ///
     /// # Errors
     ///
@@ -51,8 +54,8 @@ impl<W: Write> JsonLinesWriter<W> {
         Ok(())
     }
 
-    /// Serialize & write each item in an iterator to the underlying writer,
-    /// appending a newline to each one
+    /// Serialize each item in an iterator as a line of JSON, and write out
+    /// each one followed by a newline to the underlying writer.
     ///
     /// All values in a single call to `write_all()` must be the same type, but
     /// separate calls may write different types.
@@ -85,7 +88,7 @@ impl<W: Write> JsonLinesWriter<W> {
     }
 }
 
-/// A structure for reading JSON values from JSON Lines input
+/// A structure for reading JSON values from JSON Lines input.
 ///
 /// A `JsonLinesReader` wraps a [`std::io::BufRead`] instance and parses each
 /// line as a [`serde::de::DeserializeOwned`] value in JSON.
@@ -107,11 +110,12 @@ impl<R> JsonLinesReader<R> {
 }
 
 impl<R: BufRead> JsonLinesReader<R> {
-    /// Read & deserialize a line from the underlying reader.
+    /// Read & deserialize a line of JSON from the underlying reader.
     ///
     /// If end-of-file is reached, this method returns `Ok(None)`.
     ///
-    /// Note that each call may read a different type of value.
+    /// Note that separate calls to this method may read different types of
+    /// values.
     ///
     /// # Errors
     ///
@@ -135,7 +139,7 @@ impl<R: BufRead> JsonLinesReader<R> {
     }
 
     /// Consume the `JsonLinesReader` and return an iterator over the
-    /// deserialized values from each line.
+    /// deserialized JSON values from each line.
     ///
     /// The returned iterator has an `Item` type of `std::io::Result<T>`.  Each
     /// call to `next()` has the same error conditions as
@@ -174,3 +178,33 @@ where
         self.reader.read().transpose()
     }
 }
+
+/// An extension trait for the [`std::io::Write`] trait that adds a
+/// `write_json_lines()` method
+pub trait WriteExt: Write {
+    /// Serialize each item in an iterator as a line of JSON, and write out
+    /// each one followed by a newline.
+    ///
+    /// All values in a single call to `write_json_lines()` must be the same
+    /// type, but separate calls may write different types.
+    ///
+    /// This method does not flush.
+    ///
+    /// # Errors
+    ///
+    /// Has the same error conditions as [`serde_json::to_writer()`] and
+    /// [`std::io::Write::write_all()`].
+    fn write_json_lines<T, I>(&mut self, items: I) -> Result<()>
+    where
+        I: IntoIterator<Item = T>,
+        T: Serialize,
+    {
+        for value in items {
+            serde_json::to_writer(&mut *self, &value)?;
+            self.write_all(b"\n")?;
+        }
+        Ok(())
+    }
+}
+
+impl<W: Write> WriteExt for W {}
