@@ -8,7 +8,6 @@
 //! documents, either all at once or line by line.
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::{BufRead, Result, Write};
-use std::iter::FusedIterator;
 use std::marker::PhantomData;
 
 /// A structure for writing JSON values as JSON Lines
@@ -174,11 +173,4 @@ where
     fn next(&mut self) -> Option<Result<T>> {
         self.reader.read().transpose()
     }
-}
-
-impl<R, T> FusedIterator for JsonLinesIter<R, T>
-where
-    T: DeserializeOwned,
-    R: BufRead,
-{
 }
