@@ -18,7 +18,7 @@ impl<W: Write> JsonLinesWriter<W> {
         T: ?Sized + Serialize,
     {
         serde_json::to_writer(&mut self.inner, value)?;
-        self.write_all(b"\n")?;
+        self.inner.write_all(b"\n")?;
         Ok(())
     }
 
