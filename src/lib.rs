@@ -35,6 +35,54 @@ pub type JsonLinesIter<T> = Iter<BufReader<File>, T>;
 /// A `JsonLinesWriter` wraps a [`std::io::Write`] instance and writes
 /// [`serde::Serialize`] values to it by serializing each one as a single line
 /// of JSON and appending a newline.
+///
+/// ```no_run
+/// use jsonlines::JsonLinesWriter;
+/// use serde::Serialize;
+/// use std::fs::{read_to_string, File};
+///
+/// #[derive(Serialize)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// fn main() -> std::io::Result<()> {
+///     {
+///         let fp = File::create("example.jsonl")?;
+///         let mut writer = JsonLinesWriter::new(fp);
+///         writer.write_all([
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ])?;
+///         writer.flush()?;
+///     }
+///     // End the block to close the writer
+///     assert_eq!(
+///         read_to_string("example.jsonl")?,
+///         concat!(
+///             "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+///             "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+///             "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
+///         )
+///     );
+///     Ok(())
+/// }
+/// ```
 #[derive(Debug)]
 pub struct JsonLinesWriter<W> {
     inner: W,
