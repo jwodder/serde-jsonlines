@@ -36,6 +36,8 @@ pub type JsonLinesIter<T> = Iter<BufReader<File>, T>;
 /// [`serde::Serialize`] values to it by serializing each one as a single line
 /// of JSON and appending a newline.
 ///
+/// # Example
+///
 /// ```no_run
 /// use jsonlines::JsonLinesWriter;
 /// use serde::Serialize;
@@ -158,6 +160,8 @@ impl<W: Write> JsonLinesWriter<W> {
 ///
 /// A `JsonLinesReader` wraps a [`std::io::BufRead`] instance and parses each
 /// line as a [`serde::de::DeserializeOwned`] value in JSON.
+///
+/// # Example
 ///
 /// ```no_run
 /// use jsonlines::JsonLinesReader;
@@ -397,6 +401,56 @@ where
 /// # Errors
 ///
 /// Has the same error conditions as [`File::open()`].
+///
+/// # Example
+///
+/// ```no_run
+/// use jsonlines::json_lines;
+/// use serde::Deserialize;
+/// use std::fs::write;
+/// use std::io::Result;
+///
+/// #[derive(Debug, Deserialize, PartialEq)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// fn main() -> Result<()> {
+///     write(
+///         "example.jsonl",
+///         concat!(
+///             "{\"name\": \"Foo Bar\", \"on\":true,\"size\": 42 }\n",
+///             "{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n",
+///             " {\"name\": \"Gnusto Cleesh\" , \"on\": true, \"size\": 17}\n",
+///         ),
+///     )?;
+///     let items = json_lines::<Structure, _>("example.jsonl")?.collect::<Result<Vec<_>>>()?;
+///     assert_eq!(
+///         items,
+///         [
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ]
+///     );
+///     Ok(())
+/// }
+/// ```
+
 pub fn json_lines<T, P: AsRef<Path>>(path: P) -> Result<JsonLinesIter<T>> {
     let fp = BufReader::new(File::open(path)?);
     Ok(fp.json_lines())
