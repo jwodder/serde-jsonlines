@@ -82,7 +82,7 @@ fn test_append_json_lines() {
 #[test]
 fn test_json_lines() {
     let path = Path::new(DATA_DIR).join("sample01.jsonl");
-    let mut items = json_lines::<Structure>(path).unwrap();
+    let mut items = json_lines::<Structure, _>(path).unwrap();
     assert_eq!(
         items.next().unwrap().unwrap(),
         Structure {

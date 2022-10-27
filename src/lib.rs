@@ -298,7 +298,7 @@ where
 /// # Errors
 ///
 /// Has the same error conditions as [`File::open()`].
-pub fn json_lines<T>(path: impl AsRef<Path>) -> Result<JsonLinesIter<T>> {
+pub fn json_lines<T, P: AsRef<Path>>(path: P) -> Result<JsonLinesIter<T>> {
     let fp = BufReader::new(File::open(path)?);
     Ok(fp.json_lines())
 }
