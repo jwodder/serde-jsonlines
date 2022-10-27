@@ -20,7 +20,7 @@ struct Point {
 
 #[test]
 fn test_write_one() {
-    let tmpfile = NamedTempFile::new("test_write_one.jsonl").unwrap();
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).unwrap();
         let mut writer = JsonLinesWriter::new(fp);
@@ -37,7 +37,7 @@ fn test_write_one() {
 
 #[test]
 fn test_write_two() {
-    let tmpfile = NamedTempFile::new("test_write_one.jsonl").unwrap();
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).unwrap();
         let mut writer = JsonLinesWriter::new(fp);
@@ -55,7 +55,7 @@ fn test_write_two() {
 
 #[test]
 fn test_write_all() {
-    let tmpfile = NamedTempFile::new("test_write_one.jsonl").unwrap();
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).unwrap();
         let mut writer = JsonLinesWriter::new(fp);
@@ -88,7 +88,7 @@ fn test_write_all() {
 
 #[test]
 fn test_write_one_then_write_inner() {
-    let tmpfile = NamedTempFile::new("test_write_one.jsonl").unwrap();
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).unwrap();
         let mut writer = JsonLinesWriter::new(fp);

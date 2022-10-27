@@ -1,5 +1,6 @@
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::{BufRead, Result, Write};
+use std::iter::FusedIterator;
 use std::marker::PhantomData;
 
 #[derive(Debug)]
@@ -96,4 +97,11 @@ where
     fn next(&mut self) -> Option<Result<T>> {
         self.reader.read().transpose()
     }
+}
+
+impl<R, T> FusedIterator for Iter<R, T>
+where
+    T: DeserializeOwned,
+    R: BufRead,
+{
 }
