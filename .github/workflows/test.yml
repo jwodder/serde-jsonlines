@@ -8,15 +8,22 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os:
+          - ubuntu-latest
         toolchain:
           - minimal
           - stable
           - beta
           - nightly
+        include:
+          - os: macos-latest
+            toolchain: stable
+          - os: windows-latest
+            toolchain: stable
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
