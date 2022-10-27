@@ -1,8 +1,8 @@
 //! Read & write JSON Lines documents
 //!
 //! JSON Lines (a.k.a. newline-delimited JSON) is a simple format for
-//! representing sequences of JSON values in which each value is serialized on
-//! a single line and terminated by a newline sequence.
+//! storing sequences of JSON values in which each value is serialized on a
+//! single line and terminated by a newline sequence.
 //!
 //! This crate provides functionality for reading & writing JSON Lines
 //! documents (whether all at once or line by line) using [`serde`]'s
@@ -10,9 +10,12 @@
 
 use serde::{de::DeserializeOwned, Serialize};
 use std::fs::{File, OpenOptions};
-use std::io::{BufRead, BufWriter, Result, Write};
+use std::io::{BufRead, BufReader, BufWriter, Result, Write};
 use std::marker::PhantomData;
 use std::path::Path;
+
+/// A type alias for an [`Iter`] on a buffered file object.
+pub type JsonLinesIter<T> = Iter<BufReader<File>, T>;
 
 /// A structure for writing JSON values as JSON Lines.
 ///
@@ -150,8 +153,8 @@ impl<R: BufRead> JsonLinesReader<R> {
     /// Note that all deserialized values will be of the same type.  If you
     /// wish to read lines of varying types, use the
     /// [`read()`][JsonLinesReader::read] method instead.
-    pub fn iter<T>(self) -> JsonLinesIter<R, T> {
-        JsonLinesIter {
+    pub fn iter<T>(self) -> Iter<R, T> {
+        Iter {
             reader: self,
             _output: PhantomData,
         }
@@ -164,12 +167,12 @@ impl<R: BufRead> JsonLinesReader<R> {
 /// This iterator yields items of type `Result<T, std::io::Error>`.  Errors
 /// occurr under the same conditions as for [`JsonLinesReader::read()`].
 #[derive(Debug)]
-pub struct JsonLinesIter<R, T> {
+pub struct Iter<R, T> {
     reader: JsonLinesReader<R>,
     _output: PhantomData<T>,
 }
 
-impl<R, T> Iterator for JsonLinesIter<R, T>
+impl<R, T> Iterator for Iter<R, T>
 where
     T: DeserializeOwned,
     R: BufRead,
@@ -222,7 +225,7 @@ pub trait BufReadExt: BufRead + Sized {
     /// [`JsonLinesReader::read()`].
     ///
     /// Note that all deserialized values will be of the same type.
-    fn json_lines<T>(self) -> JsonLinesIter<Self, T> {
+    fn json_lines<T>(self) -> Iter<Self, T> {
         JsonLinesReader::new(self).iter()
     }
 }
@@ -265,4 +268,21 @@ where
 {
     let mut fp = BufWriter::new(OpenOptions::new().append(true).create(true).open(path)?);
     fp.write_json_lines(items)
+}
+
+/// Iterate over JSON Lines values from a file.
+///
+/// `json_lines(path)` returns an iterator of values deserialized from the JSON
+/// Lines in the file at `path`.
+///
+/// The returned iterator has an `Item` type of `std::io::Result<T>`.  Each
+/// call to `next()` has the same error conditions as
+/// [`JsonLinesReader::read()`].
+///
+/// # Errors
+///
+/// Has the same error conditions as [`File::open()`].
+pub fn json_lines<T>(path: impl AsRef<Path>) -> Result<JsonLinesIter<T>> {
+    let fp = BufReader::new(File::open(path)?);
+    Ok(fp.json_lines())
 }

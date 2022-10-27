@@ -1,6 +1,7 @@
 use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
-use jsonlines::{append_json_lines, write_json_lines};
+use jsonlines::{append_json_lines, json_lines, write_json_lines};
+use std::path::Path;
 mod common;
 use common::*;
 
@@ -76,4 +77,35 @@ fn test_append_json_lines() {
         "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
         "{\"name\":\"baz\",\"size\":69105,\"on\":false}\n",
     ));
+}
+
+#[test]
+fn test_json_lines() {
+    let path = Path::new(DATA_DIR).join("sample01.jsonl");
+    let mut items = json_lines::<Structure>(path).unwrap();
+    assert_eq!(
+        items.next().unwrap().unwrap(),
+        Structure {
+            name: "Foo Bar".into(),
+            size: 42,
+            on: true,
+        }
+    );
+    assert_eq!(
+        items.next().unwrap().unwrap(),
+        Structure {
+            name: "Quux".into(),
+            size: 23,
+            on: false,
+        }
+    );
+    assert_eq!(
+        items.next().unwrap().unwrap(),
+        Structure {
+            name: "Gnusto Cleesh".into(),
+            size: 17,
+            on: true,
+        }
+    );
+    assert!(items.next().is_none())
 }
