@@ -9,7 +9,7 @@
 //! serialization & deserialization features.
 
 use serde::{de::DeserializeOwned, Serialize};
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufWriter, Result, Write};
 use std::marker::PhantomData;
 use std::path::Path;
@@ -245,5 +245,24 @@ where
     T: Serialize,
 {
     let mut fp = BufWriter::new(File::create(path)?);
+    fp.write_json_lines(items)
+}
+
+/// Append an iterator of values to the file at `path` as JSON Lines.
+///
+/// If the file does not already exist, it is created.  If it does exist, the
+/// new lines are added after any lines that are already present.
+///
+/// # Errors
+///
+/// Has the same error conditions as [`File::create()`],
+/// [`serde_json::to_writer()`], and [`std::io::Write::write_all()`].
+pub fn append_json_lines<P, I, T>(path: P, items: I) -> Result<()>
+where
+    P: AsRef<Path>,
+    I: IntoIterator<Item = T>,
+    T: Serialize,
+{
+    let mut fp = BufWriter::new(OpenOptions::new().append(true).create(true).open(path)?);
     fp.write_json_lines(items)
 }
