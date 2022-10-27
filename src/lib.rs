@@ -1,6 +1,7 @@
 use serde::Serialize;
 use std::io::{Result, Write};
 
+#[derive(Debug)]
 pub struct JsonLinesWriter<W> {
     inner: W,
 }
