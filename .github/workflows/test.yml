@@ -1,0 +1,123 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 12 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - minimal
+          - stable
+          - beta
+          - nightly
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        if: matrix.toolchain != 'minimal'
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+
+      - name: Determine minimal supported Rust
+        if: matrix.toolchain == 'minimal'
+        id: minimal-version
+        run: |
+          rust_version="$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[0].rust_version')"
+          echo "msrv=$rust_version" >> "$GITHUB_OUTPUT"
+
+      - name: Install minimal supported Rust
+        if: matrix.toolchain == 'minimal'
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ steps.minimal-version.outputs.msrv }}
+
+      - name: Activate cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build crate
+        run: cargo build --verbose
+
+      - name: Test crate
+        run: cargo test --verbose
+
+  coverage:
+    # This is separate from the main tests because cargo-llvm-cov doesn't run
+    # doctests.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+
+      - name: Activate cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v1
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Test with coverage
+        run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info
+          fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Activate cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check code
+        run: cargo clippy --all-features --all-targets -- -Dwarnings
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install nightly Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+
+      - name: Activate cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check docs
+        run: cargo doc --no-deps --all-features
+        env:
+          RUSTDOCFLAGS: -Dwarnings
+
+# vim:set et sts=2:
