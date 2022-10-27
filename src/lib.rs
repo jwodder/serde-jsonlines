@@ -1,18 +1,21 @@
 use serde::Serialize;
-use std::io::{BufWriter, IntoInnerError, Result, Write};
-use std::result::Result as StdResult;
+use std::io::{Result, Write};
 
-pub struct JsonLinesWriter<W: Write> {
-    inner: BufWriter<W>,
+pub struct JsonLinesWriter<W> {
+    inner: W,
+}
+
+impl<W> JsonLinesWriter<W> {
+    pub fn new(writer: W) -> Self {
+        JsonLinesWriter { inner: writer }
+    }
+
+    pub fn into_inner(self) -> W {
+        self.inner
+    }
 }
 
 impl<W: Write> JsonLinesWriter<W> {
-    pub fn new(writer: W) -> Self {
-        JsonLinesWriter {
-            inner: BufWriter::new(writer),
-        }
-    }
-
     pub fn write<T>(&mut self, value: &T) -> Result<()>
     where
         T: ?Sized + Serialize,
@@ -35,9 +38,5 @@ impl<W: Write> JsonLinesWriter<W> {
 
     pub fn flush(&mut self) -> Result<()> {
         self.inner.flush()
-    }
-
-    pub fn into_inner(self) -> StdResult<W, IntoInnerError<BufWriter<W>>> {
-        self.inner.into_inner()
     }
 }

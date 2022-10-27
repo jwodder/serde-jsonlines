@@ -100,7 +100,7 @@ fn test_write_one_then_write_inner() {
             })
             .unwrap();
         writer.flush().unwrap();
-        let mut fp: File = writer.into_inner().unwrap();
+        let mut fp: File = writer.into_inner();
         fp.write_all(b"Not JSON\n").unwrap();
     }
     tmpfile.assert("{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\nNot JSON\n");
