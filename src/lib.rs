@@ -208,3 +208,21 @@ pub trait WriteExt: Write {
 }
 
 impl<W: Write> WriteExt for W {}
+
+/// An extension trait for the [`std::io::BufRead`] trait that adds a
+/// `json_lines()` method
+pub trait BufReadExt: BufRead + Sized {
+    /// Consume the reader and return an iterator over the deserialized JSON
+    /// values from each line.
+    ///
+    /// The returned iterator has an `Item` type of `std::io::Result<T>`.  Each
+    /// call to `next()` has the same error conditions as
+    /// [`JsonLinesReader::read()`].
+    ///
+    /// Note that all deserialized values will be of the same type.
+    fn json_lines<T>(self) -> JsonLinesIter<Self, T> {
+        JsonLinesReader::new(self).iter()
+    }
+}
+
+impl<R: BufRead> BufReadExt for R {}
