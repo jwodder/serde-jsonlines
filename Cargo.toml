@@ -3,6 +3,13 @@ name = "jsonlines"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.56"
+description = "Read & write JSON Lines documents"
+authors = ["John Thorvald Wodder II <jsonlines@varonathe.org>"]
+repository = "https://github.com/jwodder/jsonlines"
+license = "MIT"
+keywords = ["json", "json-lines", "serde", "serde-json"]
+categories = ["encoding", "parser-implementations"]
+exclude = ["/.*"]
 
 [dependencies]
 serde = "1.0.147"
