@@ -9,8 +9,10 @@
 //! serialization & deserialization features.
 
 use serde::{de::DeserializeOwned, Serialize};
-use std::io::{BufRead, Result, Write};
+use std::fs::File;
+use std::io::{BufRead, BufWriter, Result, Write};
 use std::marker::PhantomData;
+use std::path::Path;
 
 /// A structure for writing JSON values as JSON Lines.
 ///
@@ -226,3 +228,22 @@ pub trait BufReadExt: BufRead + Sized {
 }
 
 impl<R: BufRead> BufReadExt for R {}
+
+/// Write an iterator of values to the file at `path` as JSON Lines.
+///
+/// If the file does not already exist, it is created.  If it does exist, any
+/// contents are discarded.
+///
+/// # Errors
+///
+/// Has the same error conditions as [`File::create()`],
+/// [`serde_json::to_writer()`], and [`std::io::Write::write_all()`].
+pub fn write_json_lines<P, I, T>(path: P, items: I) -> Result<()>
+where
+    P: AsRef<Path>,
+    I: IntoIterator<Item = T>,
+    T: Serialize,
+{
+    let mut fp = BufWriter::new(File::create(path)?);
+    fp.write_json_lines(items)
+}
