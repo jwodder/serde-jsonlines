@@ -2,7 +2,7 @@ use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
 use jsonlines::{BufReadExt, WriteExt};
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, Write};
 use std::path::Path;
 mod common;
 use common::*;
@@ -30,6 +30,7 @@ fn test_write_json_lines() {
             },
         ])
         .unwrap();
+        fp.flush().unwrap();
     }
     tmpfile.assert(concat!(
         "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",

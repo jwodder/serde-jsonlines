@@ -19,6 +19,7 @@ fn test_write_one() {
                 on: true,
             })
             .unwrap();
+        writer.flush().unwrap();
     }
     tmpfile.assert("{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n");
 }
@@ -37,6 +38,7 @@ fn test_write_two() {
             })
             .unwrap();
         writer.write(&Point { x: 69, y: 105 }).unwrap();
+        writer.flush().unwrap();
     }
     tmpfile.assert("{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n{\"x\":69,\"y\":105}\n");
 }
@@ -66,6 +68,7 @@ fn test_write_all() {
                 },
             ])
             .unwrap();
+        writer.flush().unwrap();
     }
     tmpfile.assert(concat!(
         "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
