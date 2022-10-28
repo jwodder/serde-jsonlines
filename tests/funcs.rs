@@ -64,6 +64,10 @@ fn test_append_json_lines() {
         ],
     )
     .unwrap();
+    tmpfile.assert(concat!(
+        "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+        "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+    ));
     append_json_lines(
         &tmpfile,
         [
@@ -107,6 +111,10 @@ fn test_append_json_lines_some_then_none() {
         ],
     )
     .unwrap();
+    tmpfile.assert(concat!(
+        "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+        "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+    ));
     append_json_lines(&tmpfile, empty::<Structure>()).unwrap();
     tmpfile.assert(concat!(
         "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
@@ -118,6 +126,7 @@ fn test_append_json_lines_some_then_none() {
 fn test_append_json_lines_none_then_some() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     append_json_lines(&tmpfile, empty::<Structure>()).unwrap();
+    tmpfile.assert("");
     append_json_lines(
         &tmpfile,
         [
