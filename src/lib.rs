@@ -18,6 +18,45 @@
 //! `BufRead` or `Write` value in a [`JsonLinesReader`] or [`JsonLinesWriter`]
 //! and then calling the wrapped structure's [`read()`][JsonLinesReader::read]
 //! or [`write()`][JsonLinesWriter::write] method, respectively.
+//!
+//! # Example
+//!
+//! ```no_run
+//! use jsonlines::{json_lines, write_json_lines};
+//! use serde::{Deserialize, Serialize};
+//! use std::io::Result;
+//!
+//! #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+//! pub struct Structure {
+//!     pub name: String,
+//!     pub size: i32,
+//!     pub on: bool,
+//! }
+//!
+//! fn main() -> Result<()> {
+//!     let values = vec![
+//!         Structure {
+//!             name: "Foo Bar".into(),
+//!             size: 42,
+//!             on: true,
+//!         },
+//!         Structure {
+//!             name: "Quux".into(),
+//!             size: 23,
+//!             on: false,
+//!         },
+//!         Structure {
+//!             name: "Gnusto Cleesh".into(),
+//!             size: 17,
+//!             on: true,
+//!         },
+//!     ];
+//!     write_json_lines("example.jsonl", &values)?;
+//!     let values2 = json_lines("example.jsonl")?.collect::<Result<Vec<Structure>>>()?;
+//!     assert_eq!(values, values2);
+//!     Ok(())
+//! }
+//! ```
 
 use serde::{de::DeserializeOwned, Serialize};
 use std::fs::{File, OpenOptions};

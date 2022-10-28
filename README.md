@@ -21,3 +21,43 @@ At a lower level, values can be read or written one at a time (which is useful
 if, say, different lines are different types) by wrapping a `BufRead` or
 `Write` value in a `JsonLinesReader` or `JsonLinesWriter` and then calling the
 wrapped structure's `read()` or `write()` method, respectively.
+
+Example
+=======
+
+```rust
+use jsonlines::{json_lines, write_json_lines};
+use serde::{Deserialize, Serialize};
+use std::io::Result;
+
+#[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct Structure {
+    pub name: String,
+    pub size: i32,
+    pub on: bool,
+}
+
+fn main() -> Result<()> {
+    let values = vec![
+        Structure {
+            name: "Foo Bar".into(),
+            size: 42,
+            on: true,
+        },
+        Structure {
+            name: "Quux".into(),
+            size: 23,
+            on: false,
+        },
+        Structure {
+            name: "Gnusto Cleesh".into(),
+            size: 17,
+            on: true,
+        },
+    ];
+    write_json_lines("example.jsonl", &values)?;
+    let values2 = json_lines("example.jsonl")?.collect::<Result<Vec<Structure>>>()?;
+    assert_eq!(values, values2);
+    Ok(())
+}
+```
