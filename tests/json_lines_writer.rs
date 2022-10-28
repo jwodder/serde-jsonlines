@@ -3,6 +3,7 @@ use assert_fs::NamedTempFile;
 use jsonlines::JsonLinesWriter;
 use std::fs::File;
 use std::io::Write;
+use std::iter::empty;
 mod common;
 use common::*;
 
@@ -95,4 +96,16 @@ fn test_write_one_then_write_inner() {
         fp.write_all(b"Not JSON\n").unwrap();
     }
     tmpfile.assert("{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\nNot JSON\n");
+}
+
+#[test]
+fn test_write_all_none() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    {
+        let fp = File::create(&tmpfile).unwrap();
+        let mut writer = JsonLinesWriter::new(fp);
+        writer.write_all(empty::<Structure>()).unwrap();
+        writer.flush().unwrap();
+    }
+    tmpfile.assert("");
 }

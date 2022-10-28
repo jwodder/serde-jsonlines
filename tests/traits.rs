@@ -1,8 +1,10 @@
 use assert_fs::assert::PathAssert;
+use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
 use jsonlines::{BufReadExt, WriteExt};
 use std::fs::File;
 use std::io::{BufReader, Write};
+use std::iter::empty;
 use std::path::Path;
 mod common;
 use common::*;
@@ -40,6 +42,17 @@ fn test_write_json_lines() {
 }
 
 #[test]
+fn test_no_write_json_lines() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    {
+        let mut fp = File::create(&tmpfile).unwrap();
+        fp.write_json_lines(empty::<Structure>()).unwrap();
+        fp.flush().unwrap();
+    }
+    tmpfile.assert("");
+}
+
+#[test]
 fn test_json_lines() {
     let fp = BufReader::new(File::open(Path::new(DATA_DIR).join("sample01.jsonl")).unwrap());
     let mut items = fp.json_lines::<Structure>();
@@ -67,5 +80,16 @@ fn test_json_lines() {
             on: true,
         }
     );
-    assert!(items.next().is_none())
+    assert!(items.next().is_none());
+}
+
+#[test]
+fn test_no_json_lines() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    tmpfile.touch().unwrap();
+    let fp = BufReader::new(File::open(&tmpfile).unwrap());
+    let mut items = fp.json_lines::<Structure>();
+    assert!(items.next().is_none());
+    assert!(items.next().is_none());
+    assert!(items.next().is_none());
 }

@@ -61,7 +61,7 @@ fn test_iter() {
             on: true,
         }
     );
-    assert!(items.next().is_none())
+    assert!(items.next().is_none());
 }
 
 #[test]
@@ -185,5 +185,5 @@ fn test_iter_invalid_json() {
             on: true,
         }
     );
-    assert!(items.next().is_none())
+    assert!(items.next().is_none());
 }
