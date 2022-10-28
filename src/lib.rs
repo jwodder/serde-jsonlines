@@ -335,7 +335,57 @@ impl<W: Write> WriteExt for W {}
 
 /// An extension trait for the [`std::io::BufRead`] trait that adds a
 /// `json_lines()` method
-pub trait BufReadExt: BufRead + Sized {
+///
+/// # Example
+///
+/// ```no_run
+/// use jsonlines::BufReadExt;
+/// use serde::Deserialize;
+/// use std::fs::{write, File};
+/// use std::io::{BufReader, Result};
+///
+/// #[derive(Debug, Deserialize, PartialEq)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// fn main() -> Result<()> {
+///     write(
+///         "example.jsonl",
+///         concat!(
+///             "{\"name\": \"Foo Bar\", \"on\":true,\"size\": 42 }\n",
+///             "{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n",
+///             " {\"name\": \"Gnusto Cleesh\" , \"on\": true, \"size\": 17}\n",
+///         ),
+///     )?;
+///     let fp = BufReader::new(File::open("example.jsonl")?);
+///     let items = fp.json_lines::<Structure>().collect::<Result<Vec<_>>>()?;
+///     assert_eq!(
+///         items,
+///         [
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ]
+///     );
+///     Ok(())
+/// }
+/// ```
+pub trait BufReadExt: BufRead {
     /// Consume the reader and return an iterator over the deserialized JSON
     /// values from each line.
     ///
@@ -344,7 +394,10 @@ pub trait BufReadExt: BufRead + Sized {
     /// [`JsonLinesReader::read()`].
     ///
     /// Note that all deserialized values will be of the same type.
-    fn json_lines<T>(self) -> Iter<Self, T> {
+    fn json_lines<T>(self) -> Iter<Self, T>
+    where
+        Self: Sized,
+    {
         JsonLinesReader::new(self).iter()
     }
 }
