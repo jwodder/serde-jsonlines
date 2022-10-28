@@ -1,7 +1,7 @@
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
-use jsonlines::{BufReadExt, WriteExt};
+use serde_jsonlines::{BufReadExt, WriteExt};
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::iter::empty;

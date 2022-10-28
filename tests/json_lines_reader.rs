@@ -1,6 +1,6 @@
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
-use jsonlines::JsonLinesReader;
+use serde_jsonlines::JsonLinesReader;
 use std::fs::File;
 use std::io::{BufRead, BufReader, ErrorKind, Result};
 use std::path::Path;

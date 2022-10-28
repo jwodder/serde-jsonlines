@@ -1,6 +1,6 @@
 use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
-use jsonlines::JsonLinesWriter;
+use serde_jsonlines::JsonLinesWriter;
 use std::fs::File;
 use std::io::Write;
 use std::iter::empty;

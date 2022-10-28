@@ -2,7 +2,7 @@
 //!
 //! JSON Lines (a.k.a. newline-delimited JSON) is a simple format for storing
 //! sequences of JSON values in which each value is serialized on a single line
-//! and terminated by a newline sequence.  The `jsonlines` crate provides
+//! and terminated by a newline sequence.  The `serde-jsonlines` crate provides
 //! functionality for reading & writing these documents (whether all at once or
 //! line by line) using [`serde`]'s serialization & deserialization features.
 //!
@@ -22,8 +22,8 @@
 //! # Example
 //!
 //! ```no_run
-//! use jsonlines::{json_lines, write_json_lines};
 //! use serde::{Deserialize, Serialize};
+//! use serde_jsonlines::{json_lines, write_json_lines};
 //! use std::io::Result;
 //!
 //! #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -78,8 +78,8 @@ pub type JsonLinesIter<T> = Iter<BufReader<File>, T>;
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::JsonLinesWriter;
 /// use serde::Serialize;
+/// use serde_jsonlines::JsonLinesWriter;
 /// use std::fs::{read_to_string, File};
 ///
 /// #[derive(Serialize)]
@@ -203,8 +203,8 @@ impl<W: Write> JsonLinesWriter<W> {
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::JsonLinesReader;
 /// use serde::Deserialize;
+/// use serde_jsonlines::JsonLinesReader;
 /// use std::fs::{write, File};
 /// use std::io::BufReader;
 ///
@@ -348,8 +348,8 @@ where
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::WriteExt;
 /// use serde::Serialize;
+/// use serde_jsonlines::WriteExt;
 /// use std::fs::{read_to_string, File};
 /// use std::io::Write;
 ///
@@ -428,8 +428,8 @@ impl<W: Write> WriteExt for W {}
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::BufReadExt;
 /// use serde::Deserialize;
+/// use serde_jsonlines::BufReadExt;
 /// use std::fs::{write, File};
 /// use std::io::{BufReader, Result};
 ///
@@ -507,8 +507,8 @@ impl<R: BufRead> BufReadExt for R {}
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::write_json_lines;
 /// use serde::Serialize;
+/// use serde_jsonlines::write_json_lines;
 /// use std::fs::read_to_string;
 ///
 /// #[derive(Serialize)]
@@ -575,8 +575,8 @@ where
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::append_json_lines;
 /// use serde::Serialize;
+/// use serde_jsonlines::append_json_lines;
 /// use std::fs::read_to_string;
 ///
 /// #[derive(Serialize)]
@@ -663,8 +663,8 @@ where
 /// # Example
 ///
 /// ```no_run
-/// use jsonlines::json_lines;
 /// use serde::Deserialize;
+/// use serde_jsonlines::json_lines;
 /// use std::fs::write;
 /// use std::io::Result;
 ///
