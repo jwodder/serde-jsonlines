@@ -305,6 +305,56 @@ where
 
 /// An extension trait for the [`std::io::Write`] trait that adds a
 /// `write_json_lines()` method
+///
+/// # Example
+///
+/// ```no_run
+/// use jsonlines::WriteExt;
+/// use serde::Serialize;
+/// use std::fs::{read_to_string, File};
+/// use std::io::Write;
+///
+/// #[derive(Serialize)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// fn main() -> std::io::Result<()> {
+///     {
+///         let mut fp = File::create("example.jsonl")?;
+///         fp.write_json_lines([
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ])?;
+///         fp.flush()?;
+///     }
+///     // End the block to close the writer
+///     assert_eq!(
+///         read_to_string("example.jsonl")?,
+///         concat!(
+///             "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+///             "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+///             "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
+///         )
+///     );
+///     Ok(())
+/// }
+/// ```
 pub trait WriteExt: Write {
     /// Serialize each item in an iterator as a line of JSON, and write out
     /// each one followed by a newline.
