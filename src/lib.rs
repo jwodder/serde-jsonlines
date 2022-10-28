@@ -359,7 +359,8 @@ impl<R: BufRead> BufReadExt for R {}
 /// # Errors
 ///
 /// Has the same error conditions as [`File::create()`],
-/// [`serde_json::to_writer()`], and [`std::io::Write::write_all()`].
+/// [`serde_json::to_writer()`], [`std::io::Write::write_all()`], and
+/// [`std::io::Write::flush()`].
 pub fn write_json_lines<P, I, T>(path: P, items: I) -> Result<()>
 where
     P: AsRef<Path>,
@@ -367,7 +368,8 @@ where
     T: Serialize,
 {
     let mut fp = BufWriter::new(File::create(path)?);
-    fp.write_json_lines(items)
+    fp.write_json_lines(items)?;
+    fp.flush()
 }
 
 /// Append an iterator of values to the file at `path` as JSON Lines.
@@ -378,7 +380,8 @@ where
 /// # Errors
 ///
 /// Has the same error conditions as [`File::create()`],
-/// [`serde_json::to_writer()`], and [`std::io::Write::write_all()`].
+/// [`serde_json::to_writer()`], [`std::io::Write::write_all()`], and
+/// [`std::io::Write::flush()`].
 pub fn append_json_lines<P, I, T>(path: P, items: I) -> Result<()>
 where
     P: AsRef<Path>,
@@ -386,7 +389,8 @@ where
     T: Serialize,
 {
     let mut fp = BufWriter::new(OpenOptions::new().append(true).create(true).open(path)?);
-    fp.write_json_lines(items)
+    fp.write_json_lines(items)?;
+    fp.flush()
 }
 
 /// Iterate over JSON Lines values from a file.
