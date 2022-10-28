@@ -464,6 +464,53 @@ impl<R: BufRead> BufReadExt for R {}
 /// Has the same error conditions as [`File::create()`],
 /// [`serde_json::to_writer()`], [`std::io::Write::write_all()`], and
 /// [`std::io::Write::flush()`].
+///
+/// # Example
+///
+/// ```no_run
+/// use jsonlines::write_json_lines;
+/// use serde::Serialize;
+/// use std::fs::read_to_string;
+///
+/// #[derive(Serialize)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// fn main() -> std::io::Result<()> {
+///     write_json_lines(
+///         "example.jsonl",
+///         [
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ],
+///     )?;
+///     assert_eq!(
+///         read_to_string("example.jsonl")?,
+///         concat!(
+///             "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+///             "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+///             "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
+///         )
+///     );
+///     Ok(())
+/// }
+/// ```
 pub fn write_json_lines<P, I, T>(path: P, items: I) -> Result<()>
 where
     P: AsRef<Path>,
