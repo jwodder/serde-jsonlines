@@ -2,7 +2,7 @@ use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
 use serde_jsonlines::JsonLinesWriter;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Seek, SeekFrom, Write};
 use std::iter::empty;
 mod common;
 use common::*;
@@ -108,4 +108,32 @@ fn test_write_all_none() {
         writer.flush().unwrap();
     }
     tmpfile.assert("");
+}
+
+#[test]
+fn test_write_then_back_up_then_write() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    {
+        let fp = File::create(&tmpfile).unwrap();
+        let mut writer = JsonLinesWriter::new(fp);
+        writer
+            .write(&Structure {
+                name: "Foo Bar".into(),
+                size: 42,
+                on: true,
+            })
+            .unwrap();
+        writer.flush().unwrap();
+        let fp: &mut File = writer.get_mut();
+        fp.seek(SeekFrom::Start(0)).unwrap();
+        writer
+            .write(&Structure {
+                name: "Gnusto Cleesh".into(),
+                size: 17,
+                on: true,
+            })
+            .unwrap();
+        writer.flush().unwrap();
+    }
+    tmpfile.assert("{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n");
 }

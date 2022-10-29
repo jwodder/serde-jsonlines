@@ -1,8 +1,8 @@
-use assert_fs::fixture::FileTouch;
+use assert_fs::fixture::{FileTouch, FileWriteStr};
 use assert_fs::NamedTempFile;
 use serde_jsonlines::JsonLinesReader;
-use std::fs::File;
-use std::io::{BufRead, BufReader, ErrorKind, Result};
+use std::fs::{File, OpenOptions};
+use std::io::{BufRead, BufReader, ErrorKind, Result, Seek, SeekFrom, Write};
 use std::path::Path;
 mod common;
 use common::*;
@@ -186,4 +186,44 @@ fn test_iter_invalid_json() {
         }
     );
     assert!(items.next().is_none());
+}
+
+#[test]
+fn test_read_then_write_then_read() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    tmpfile
+        .write_str("{\"name\": \"Foo Bar\", \"on\":true,\"size\": 42 }\n")
+        .unwrap();
+    let fp = BufReader::new(
+        OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&tmpfile)
+            .unwrap(),
+    );
+    let mut reader = JsonLinesReader::new(fp);
+    assert_eq!(
+        reader.read::<Structure>().unwrap(),
+        Some(Structure {
+            name: "Foo Bar".into(),
+            size: 42,
+            on: true,
+        })
+    );
+    assert_eq!(reader.read::<Structure>().unwrap(), None);
+    let fp: &mut File = reader.get_mut().get_mut();
+    let pos = fp.stream_position().unwrap();
+    fp.write_all(b"{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n")
+        .unwrap();
+    fp.flush().unwrap();
+    fp.seek(SeekFrom::Start(pos)).unwrap();
+    assert_eq!(
+        reader.read::<Structure>().unwrap(),
+        Some(Structure {
+            name: "Quux".into(),
+            size: 23,
+            on: false,
+        })
+    );
+    assert_eq!(reader.read::<Structure>().unwrap(), None);
 }

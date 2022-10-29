@@ -3,7 +3,7 @@
 [![codecov.io](https://codecov.io/gh/jwodder/serde-jsonlines/branch/master/graph/badge.svg)](https://codecov.io/gh/jwodder/serde-jsonlines)
 [![MIT License](https://img.shields.io/github/license/jwodder/serde-jsonlines.svg)](https://opensource.org/licenses/MIT)
 
-[GitHub](https://github.com/jwodder/serde-jsonlines) | [crates.io](https://crates.io/crates/serde-jsonlines) | [Documentation](https://docs.rs/serde-jsonlines) | [Issues](https://github.com/jwodder/serde-jsonlines/issues)
+[GitHub](https://github.com/jwodder/serde-jsonlines) | [crates.io](https://crates.io/crates/serde-jsonlines) | [Documentation](https://docs.rs/serde-jsonlines) | [Issues](https://github.com/jwodder/serde-jsonlines/issues) | [Changelog](https://github.com/jwodder/serde-jsonlines/blob/master/CHANGELOG.md)
 
 JSON Lines (a.k.a. newline-delimited JSON) is a simple format for storing
 sequences of JSON values in which each value is serialized on a single line and

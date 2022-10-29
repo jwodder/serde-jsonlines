@@ -139,6 +139,16 @@ impl<W> JsonLinesWriter<W> {
     pub fn into_inner(self) -> W {
         self.inner
     }
+
+    /// Get a reference to the underlying writer
+    pub fn get_ref(&self) -> &W {
+        &self.inner
+    }
+
+    /// Get a mutable reference to the underlying writer
+    pub fn get_mut(&mut self) -> &mut W {
+        &mut self.inner
+    }
 }
 
 impl<W: Write> JsonLinesWriter<W> {
@@ -266,6 +276,16 @@ impl<R> JsonLinesReader<R> {
     /// Consume the `JsonLinesReader` and return the underlying reader
     pub fn into_inner(self) -> R {
         self.inner
+    }
+
+    /// Get a reference to the underlying reader
+    pub fn get_ref(&self) -> &R {
+        &self.inner
+    }
+
+    /// Get a mutable reference to the underlying reader
+    pub fn get_mut(&mut self) -> &mut R {
+        &mut self.inner
     }
 }
 
