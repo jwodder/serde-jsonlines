@@ -31,7 +31,7 @@ Installation
 
 ```toml
 [dependencies]
-serde-jsonlines = "0.2.0"
+serde-jsonlines = "0.3.0"
 ```
 
 

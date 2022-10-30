@@ -1,5 +1,5 @@
-v0.3.0 (in development)
------------------------
+v0.3.0 (2022-10-30)
+-------------------
 - Renamed `JsonLinesReader::iter()` to `read_all()`
 - Renamed `Iter` to `JsonLinesIter`, and renamed `JsonLinesIter` to
   `JsonLinesFileIter`
