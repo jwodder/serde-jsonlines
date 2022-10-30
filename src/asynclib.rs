@@ -10,6 +10,12 @@ use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, Lines}
 use tokio_stream::Stream;
 
 pin_project! {
+    /// A structure for asynchronously reading JSON values from JSON Lines
+    /// input.
+    ///
+    /// An `AsyncJsonLinesReader` wraps a [`tokio::io::AsyncBufRead`] instance
+    /// and parses each line as a [`serde::de::DeserializeOwned`] value in
+    /// JSON.
     #[derive(Debug)]
     pub struct AsyncJsonLinesReader<R> {
         #[pin]
@@ -46,6 +52,24 @@ impl<R> AsyncJsonLinesReader<R> {
 }
 
 impl<R: AsyncBufRead> AsyncJsonLinesReader<R> {
+    /// Asynchronously read & deserialize a line of JSON from the underlying
+    /// reader.
+    ///
+    /// If end-of-file is reached, this method returns `Ok(None)`.
+    ///
+    /// Note that separate calls to this method may read different types of
+    /// values.
+    ///
+    /// # Errors
+    ///
+    /// Has the same error conditions as
+    /// [`tokio::io::AsyncBufReadExt::read_line()`] and
+    /// [`serde_json::from_str()`].  Note that, in the latter case (which can
+    /// be identified by the [`std::io::Error`] having a [`serde_json::Error`]
+    /// value as its payload), continuing to read from the
+    /// `AsyncJsonLinesReader` afterwards will pick up on the next line as
+    /// though the error never happened, so invalid JSON can be easily ignored
+    /// if you so wish.
     pub async fn read<T>(&mut self) -> Result<Option<T>>
     where
         T: DeserializeOwned,
@@ -60,6 +84,16 @@ impl<R: AsyncBufRead> AsyncJsonLinesReader<R> {
         }
     }
 
+    /// Consume the `AsyncJsonLinesReader` and return an asynchronous stream
+    /// over the deserialized JSON values from each line.
+    ///
+    /// The returned stream has an `Item` type of `std::io::Result<T>`.  Each
+    /// call to `next()` has the same error conditions as
+    /// [`read()`][AsyncJsonLinesReader::read].
+    ///
+    /// Note that all deserialized values will be of the same type.  If you
+    /// wish to read lines of varying types, use the
+    /// [`read()`][AsyncJsonLinesReader::read] method instead.
     pub fn read_all<T>(self) -> JsonLinesStream<R, T> {
         JsonLinesStream {
             inner: self.inner.lines(),
@@ -69,6 +103,12 @@ impl<R: AsyncBufRead> AsyncJsonLinesReader<R> {
 }
 
 pin_project! {
+    /// An asynchronous stream over the lines of an [`AsyncBufRead`] value `R`
+    /// that decodes each line as JSON of type `T`.
+    ///
+    /// This stream yields items of type `Result<T, std::io::Error>`.  Errors
+    /// occurr under the same conditions as for
+    /// [`AsyncJsonLinesReader::read()`].
     #[derive(Debug)]
     pub struct JsonLinesStream<R, T> {
         #[pin]
@@ -96,6 +136,11 @@ where
 }
 
 pin_project! {
+    /// A structure for asynchronously writing JSON values as JSON Lines.
+    ///
+    /// An `AsyncJsonLinesWriter` wraps a [`tokio::io::AsyncWrite`] instance
+    /// and writes [`serde::Serialize`] values to it by serializing each one as
+    /// a single line of JSON and appending a newline.
     #[derive(Debug)]
     pub struct AsyncJsonLinesWriter<W> {
         #[pin]
@@ -132,6 +177,16 @@ impl<W> AsyncJsonLinesWriter<W> {
 }
 
 impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
+    /// Serialize a value as a line of JSON and write it asynchronously to the
+    /// underlying writer, followed by a newline.
+    ///
+    /// Note that separate calls to this method may write different types of
+    /// values.
+    ///
+    /// # Errors
+    ///
+    /// Has the same error conditions as [`serde_json::to_writer()`] and
+    /// [`tokio::io::AsyncWriteExt::write_all()`].
     pub async fn write<T>(&mut self, value: &T) -> Result<()>
     where
         T: ?Sized + Serialize,
@@ -143,6 +198,14 @@ impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
         Ok(())
     }
 
+    /// Flush the underlying writer.
+    ///
+    /// [`write()`][AsyncJsonLinesWriter::write] does not flush the writer, so
+    /// you must explicitly call this method if you need output flushed.
+    ///
+    /// # Errors
+    ///
+    /// Has the same error conditions as [`tokio::io::AsyncWriteExt::flush()`].
     pub async fn flush(&mut self) -> Result<()>
     where
         W: Unpin,
