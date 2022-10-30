@@ -65,9 +65,9 @@ use std::marker::PhantomData;
 use std::path::Path;
 
 #[cfg(feature = "async")]
-mod aiolib;
+mod asynclib;
 #[cfg(feature = "async")]
-pub use aiolib::*;
+pub use asynclib::*;
 
 /// A type alias for an [`JsonLinesIter`] on a buffered file object.
 ///
