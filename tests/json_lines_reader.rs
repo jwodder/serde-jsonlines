@@ -33,10 +33,10 @@ fn test_read_one() {
 }
 
 #[test]
-fn test_iter() {
+fn test_read_all() {
     let fp = BufReader::new(File::open(Path::new(DATA_DIR).join("sample01.jsonl")).unwrap());
     let reader = JsonLinesReader::new(fp);
-    let mut items = reader.iter::<Structure>();
+    let mut items = reader.read_all::<Structure>();
     assert_eq!(
         items.next().unwrap().unwrap(),
         Structure {
@@ -65,11 +65,11 @@ fn test_iter() {
 }
 
 #[test]
-fn test_iter_collect() {
+fn test_read_all_collect() {
     let fp = BufReader::new(File::open(Path::new(DATA_DIR).join("sample01.jsonl")).unwrap());
     let reader = JsonLinesReader::new(fp);
     let items = reader
-        .iter::<Structure>()
+        .read_all::<Structure>()
         .collect::<Result<Vec<_>>>()
         .unwrap();
     assert_eq!(
@@ -131,10 +131,10 @@ fn test_read_two() {
 }
 
 #[test]
-fn test_iter_invalid_json() {
+fn test_read_all_invalid_json() {
     let fp = BufReader::new(File::open(Path::new(DATA_DIR).join("sample04.txt")).unwrap());
     let reader = JsonLinesReader::new(fp);
-    let mut items = reader.iter::<Structure>();
+    let mut items = reader.read_all::<Structure>();
     assert_eq!(
         items.next().unwrap().unwrap(),
         Structure {

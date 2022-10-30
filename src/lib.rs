@@ -237,7 +237,7 @@ impl<W: Write> JsonLinesWriter<W> {
 ///     let fp = BufReader::new(File::open("example.jsonl")?);
 ///     let reader = JsonLinesReader::new(fp);
 ///     let items = reader
-///         .iter::<Structure>()
+///         .read_all::<Structure>()
 ///         .collect::<std::io::Result<Vec<_>>>()?;
 ///     assert_eq!(
 ///         items,
@@ -287,6 +287,23 @@ impl<R> JsonLinesReader<R> {
     pub fn get_mut(&mut self) -> &mut R {
         &mut self.inner
     }
+
+    /// Consume the `JsonLinesReader` and return an iterator over the
+    /// deserialized JSON values from each line.
+    ///
+    /// The returned iterator has an `Item` type of `std::io::Result<T>`.  Each
+    /// call to `next()` has the same error conditions as
+    /// [`read()`][JsonLinesReader::read].
+    ///
+    /// Note that all deserialized values will be of the same type.  If you
+    /// wish to read lines of varying types, use the
+    /// [`read()`][JsonLinesReader::read] method instead.
+    pub fn read_all<T>(self) -> Iter<R, T> {
+        Iter {
+            reader: self,
+            _output: PhantomData,
+        }
+    }
 }
 
 impl<R: BufRead> JsonLinesReader<R> {
@@ -315,23 +332,6 @@ impl<R: BufRead> JsonLinesReader<R> {
             Ok(None)
         } else {
             Ok(Some(serde_json::from_str::<T>(&s)?))
-        }
-    }
-
-    /// Consume the `JsonLinesReader` and return an iterator over the
-    /// deserialized JSON values from each line.
-    ///
-    /// The returned iterator has an `Item` type of `std::io::Result<T>`.  Each
-    /// call to `next()` has the same error conditions as
-    /// [`read()`][JsonLinesReader::read].
-    ///
-    /// Note that all deserialized values will be of the same type.  If you
-    /// wish to read lines of varying types, use the
-    /// [`read()`][JsonLinesReader::read] method instead.
-    pub fn iter<T>(self) -> Iter<R, T> {
-        Iter {
-            reader: self,
-            _output: PhantomData,
         }
     }
 }
@@ -507,7 +507,7 @@ pub trait BufReadExt: BufRead {
     where
         Self: Sized,
     {
-        JsonLinesReader::new(self).iter()
+        JsonLinesReader::new(self).read_all()
     }
 }
 
