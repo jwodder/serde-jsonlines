@@ -1,12 +1,12 @@
 #![cfg(feature = "async")]
 use pin_project_lite::pin_project;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
 use std::marker::PhantomData;
 use std::marker::Unpin;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use tokio::io::{AsyncBufRead, AsyncBufReadExt, Lines};
+use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, Lines};
 use tokio_stream::Stream;
 
 pin_project! {
@@ -92,5 +92,61 @@ where
             Poll::Ready(Ok(None)) => None.into(),
             Poll::Ready(Err(e)) => Some(Err(e)).into(),
         }
+    }
+}
+
+pin_project! {
+    #[derive(Debug)]
+    pub struct AsyncJsonLinesWriter<W> {
+        #[pin]
+        inner: W,
+    }
+}
+
+impl<W> AsyncJsonLinesWriter<W> {
+    /// Construct a new `AsyncJsonLinesWriter` from a
+    /// [`tokio::io::AsyncWrite`] instance
+    pub fn new(writer: W) -> Self {
+        AsyncJsonLinesWriter { inner: writer }
+    }
+
+    /// Consume the `AsyncJsonLinesWriter` and return the underlying writer
+    pub fn into_inner(self) -> W {
+        self.inner
+    }
+
+    /// Get a reference to the underlying writer
+    pub fn get_ref(&self) -> &W {
+        &self.inner
+    }
+
+    /// Get a mutable reference to the underlying writer
+    pub fn get_mut(&mut self) -> &mut W {
+        &mut self.inner
+    }
+
+    /// Get a pinned mutable reference to the underlying writer
+    pub fn get_pin_mut(self: Pin<&mut Self>) -> Pin<&mut W> {
+        self.project().inner
+    }
+}
+
+impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
+    pub async fn write<T>(&mut self, value: &T) -> Result<()>
+    where
+        T: ?Sized + Serialize,
+        W: Unpin,
+    {
+        let mut buf = serde_json::to_vec(value)?;
+        buf.push(b'\n');
+        self.inner.write_all(&buf).await?;
+        Ok(())
+    }
+
+    pub async fn flush(&mut self) -> Result<()>
+    where
+        W: Unpin,
+    {
+        self.inner.flush().await
     }
 }
