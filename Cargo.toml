@@ -12,6 +12,7 @@ categories = ["encoding", "parser-implementations"]
 exclude = ["/.*"]
 
 [dependencies]
+futures = { version = "0.3.25", default-features = false, optional = true }
 pin-project-lite = { version = "0.2.9", optional = true }
 serde = "1.0.147"
 serde_json = "1.0.87"
@@ -24,7 +25,7 @@ serde = { version = "1.0.147", features = ["derive"] }
 tokio = { version = "1.21.2", features = ["fs", "macros", "rt"] }
 
 [features]
-async = ["pin-project-lite", "tokio", "tokio-stream"]
+async = ["futures", "pin-project-lite", "tokio", "tokio-stream"]
 
 [package.metadata.docs.rs]
 all-features = true

@@ -1,5 +1,7 @@
 #![cfg(feature = "async")]
 #![cfg_attr(docsrs, doc(cfg(feature = "async")))]
+use futures::ready;
+use futures::sink::Sink;
 use pin_project_lite::pin_project;
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
@@ -125,13 +127,10 @@ where
     type Item = Result<T>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        match self.project().inner.poll_next_line(cx) {
-            Poll::Pending => Poll::Pending,
-            Poll::Ready(Ok(Some(line))) => {
-                Some(serde_json::from_str::<T>(&line).map_err(Into::into)).into()
-            }
-            Poll::Ready(Ok(None)) => None.into(),
-            Poll::Ready(Err(e)) => Some(Err(e)).into(),
+        match ready!(self.project().inner.poll_next_line(cx)) {
+            Ok(Some(line)) => Some(serde_json::from_str::<T>(&line).map_err(Into::into)).into(),
+            Ok(None) => None.into(),
+            Err(e) => Some(Err(e)).into(),
         }
     }
 }
@@ -175,6 +174,10 @@ impl<W> AsyncJsonLinesWriter<W> {
     pub fn get_pin_mut(self: Pin<&mut Self>) -> Pin<&mut W> {
         self.project().inner
     }
+
+    pub fn into_sink<T>(self) -> JsonLinesSink<W, T> {
+        JsonLinesSink::new(self.inner)
+    }
 }
 
 impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
@@ -212,5 +215,80 @@ impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
         W: Unpin,
     {
         self.inner.flush().await
+    }
+}
+
+pin_project! {
+    #[derive(Debug)]
+    pub struct JsonLinesSink<W, T> {
+        #[pin]
+        inner: W,
+        buffer: Option<Vec<u8>>,
+        offset: usize,
+        _input: PhantomData<T>,
+    }
+}
+
+impl<W, T> JsonLinesSink<W, T> {
+    fn new(writer: W) -> Self {
+        JsonLinesSink {
+            inner: writer,
+            buffer: None,
+            offset: 0,
+            _input: PhantomData,
+        }
+    }
+}
+
+// Based on the implementation of futures::io::IntoSink
+impl<W: AsyncWrite, T> JsonLinesSink<W, T> {
+    fn poll_flush_buffer(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>> {
+        let mut this = self.project();
+        if let Some(buffer) = this.buffer {
+            loop {
+                let written = ready!(this.inner.as_mut().poll_write(cx, &buffer[*this.offset..]))?;
+                *this.offset += written;
+                if *this.offset == buffer.len() {
+                    break;
+                }
+            }
+        }
+        *this.buffer = None;
+        Poll::Ready(Ok(()))
+    }
+}
+
+impl<W: AsyncWrite, T> Sink<T> for JsonLinesSink<W, T>
+where
+    T: Serialize,
+{
+    type Error = std::io::Error;
+
+    fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>> {
+        //ready!(self.poll_flush_buffer(cx))?;
+        //Poll::Ready(Ok(()))
+        self.poll_flush_buffer(cx)
+    }
+
+    fn start_send(self: Pin<&mut Self>, item: T) -> Result<()> {
+        debug_assert!(self.buffer.is_none());
+        let this = self.project();
+        let mut buf = serde_json::to_vec(&item)?;
+        buf.push(b'\n');
+        *this.buffer = Some(buf);
+        *this.offset = 0;
+        Ok(())
+    }
+
+    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>> {
+        ready!(self.as_mut().poll_flush_buffer(cx))?;
+        ready!(self.project().inner.poll_flush(cx))?;
+        Poll::Ready(Ok(()))
+    }
+
+    fn poll_close(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>> {
+        ready!(self.as_mut().poll_flush_buffer(cx))?;
+        ready!(self.project().inner.poll_shutdown(cx))?;
+        Poll::Ready(Ok(()))
     }
 }
