@@ -50,11 +50,14 @@ jobs:
       - name: Activate cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+
       - name: Build crate
         run: cargo build --verbose
 
       - name: Test crate
-        run: cargo test --verbose
+        run: cargo hack --feature-powerset test --verbose
 
   coverage:
     # This is separate from the main tests because cargo-llvm-cov doesn't run
@@ -102,8 +105,11 @@ jobs:
       - name: Activate cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
+
       - name: Check code
-        run: cargo clippy --all-features --all-targets -- -Dwarnings
+        run: cargo hack --feature-powerset clippy --all-targets -- -Dwarnings
 
       - name: Check formatting
         run: cargo fmt --check
