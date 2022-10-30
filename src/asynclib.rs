@@ -330,3 +330,24 @@ pub trait AsyncBufReadJsonLines: AsyncBufRead {
 }
 
 impl<R: AsyncBufRead> AsyncBufReadJsonLines for R {}
+
+/// An extension trait for the [`tokio::io::AsyncWrite`] trait that adds an
+/// `into_json_lines_sink()` method
+pub trait AsyncWriteJsonLines: AsyncWrite {
+    /// Consume the writer and return an asynchronous sink for serializing
+    /// values as JSON and writing them to the writer.
+    ///
+    /// The returned sink consumes `T` values and has an `Error` type of
+    /// [`std::io::Error`].  Each call to `send()` has the same error
+    /// conditions as [`AsyncJsonLinesWriter::write()`].
+    ///
+    /// Note that all values sent to the sink must be of the same type.
+    fn into_json_lines_sink<T>(self) -> JsonLinesSink<Self, T>
+    where
+        Self: Sized,
+    {
+        JsonLinesSink::new(self)
+    }
+}
+
+impl<W: AsyncWrite> AsyncWriteJsonLines for W {}
