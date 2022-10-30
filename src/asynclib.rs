@@ -306,3 +306,27 @@ where
         Poll::Ready(Ok(()))
     }
 }
+
+/// An extension trait for the [`tokio::io::AsyncBufRead`] trait that adds a
+/// `json_lines()` method
+pub trait AsyncBufReadJsonLines: AsyncBufRead {
+    /// Consume the reader and return an asynchronous stream over the
+    /// deserialized JSON values from each line.
+    ///
+    /// The returned stream has an `Item` type of `std::io::Result<T>`.  Each
+    /// call to `next()` has the same error conditions as
+    /// [`read()`][AsyncJsonLinesReader::read].
+    ///
+    /// Note that all deserialized values will be of the same type.
+    fn json_lines<T>(self) -> JsonLinesStream<Self, T>
+    where
+        Self: Sized,
+    {
+        JsonLinesStream {
+            inner: self.lines(),
+            _output: PhantomData,
+        }
+    }
+}
+
+impl<R: AsyncBufRead> AsyncBufReadJsonLines for R {}

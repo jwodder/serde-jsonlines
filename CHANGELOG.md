@@ -3,6 +3,7 @@ v0.4.0 (in development)
 - Added tokio-based asynchronous functionality:
     - `AsyncJsonLinesReader`
     - `AsyncJsonLinesWriter`
+    - `AsyncBufReadJsonLines` extension trait
 
 v0.3.0 (2022-10-30)
 -------------------

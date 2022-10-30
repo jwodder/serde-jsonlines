@@ -7,9 +7,10 @@ use std::path::Path;
 use std::pin::Pin;
 use tokio::fs::{File, OpenOptions};
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, AsyncWriteExt, BufReader};
+use tokio_stream::StreamExt;
+
 mod common;
 use common::*;
-use tokio_stream::StreamExt;
 
 #[tokio::test]
 async fn test_read_empty() {
