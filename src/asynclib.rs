@@ -113,6 +113,7 @@ pin_project! {
     /// occurr under the same conditions as for
     /// [`AsyncJsonLinesReader::read()`].
     #[derive(Debug)]
+    #[must_use = "streams do nothing unless polled"]
     pub struct JsonLinesStream<R, T> {
         #[pin]
         inner: Lines<R>,
@@ -233,6 +234,7 @@ pin_project! {
     /// An asynchronous sink that serializes input values of type `T` as JSON
     /// and writes them to the underlying [`AsyncWrite`] value `W`.
     #[derive(Debug)]
+    #[must_use = "sinks do nothing unless polled"]
     pub struct JsonLinesSink<W, T> {
         #[pin]
         inner: W,
