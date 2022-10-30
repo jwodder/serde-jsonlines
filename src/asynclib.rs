@@ -175,6 +175,17 @@ impl<W> AsyncJsonLinesWriter<W> {
         self.project().inner
     }
 
+    /// Consume the `AsyncJsonLinesWriter` and return an asynchronous sink
+    /// for serializing values as JSON and writing them to the underlying
+    /// writer.
+    ///
+    /// The returned sink consumes `T` values and has an `Error` type of
+    /// [`std::io::Error`].  Each call to `send()` has the same error
+    /// conditions as [`write()`][AsyncJsonLinesWriter::write].
+    ///
+    /// Note that all values sent to the sink must be of the same type.  If you
+    /// wish to write values of varying types, use the
+    /// [`write()`][AsyncJsonLinesWriter::write] method.
     pub fn into_sink<T>(self) -> JsonLinesSink<W, T> {
         JsonLinesSink::new(self.inner)
     }
@@ -219,6 +230,8 @@ impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
 }
 
 pin_project! {
+    /// An asynchronous sink that serializes input values of type `T` as JSON
+    /// and writes them to the underlying [`AsyncWrite`] value `W`.
     #[derive(Debug)]
     pub struct JsonLinesSink<W, T> {
         #[pin]
@@ -238,11 +251,12 @@ impl<W, T> JsonLinesSink<W, T> {
             _input: PhantomData,
         }
     }
-}
 
-// Based on the implementation of futures::io::IntoSink
-impl<W: AsyncWrite, T> JsonLinesSink<W, T> {
-    fn poll_flush_buffer(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>> {
+    // Based on the implementation of futures::io::IntoSink
+    fn poll_flush_buffer(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>>
+    where
+        W: AsyncWrite,
+    {
         let mut this = self.project();
         if let Some(buffer) = this.buffer {
             loop {
@@ -265,8 +279,6 @@ where
     type Error = std::io::Error;
 
     fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>> {
-        //ready!(self.poll_flush_buffer(cx))?;
-        //Poll::Ready(Ok(()))
         self.poll_flush_buffer(cx)
     }
 
