@@ -64,6 +64,11 @@ use std::io::{BufRead, BufReader, BufWriter, Result, Write};
 use std::marker::PhantomData;
 use std::path::Path;
 
+#[cfg(feature = "async")]
+mod aiolib;
+#[cfg(feature = "async")]
+pub use aiolib::*;
+
 /// A type alias for an [`JsonLinesIter`] on a buffered file object.
 ///
 /// This is the return type of [`json_lines()`].
