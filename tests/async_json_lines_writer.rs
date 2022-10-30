@@ -176,3 +176,38 @@ async fn test_into_sink_send_none() {
     }
     tmpfile.assert("");
 }
+
+#[tokio::test]
+async fn test_feed_into_sink() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    {
+        let fp = File::create(&tmpfile).await.unwrap();
+        let sink = AsyncJsonLinesWriter::new(fp).into_sink();
+        tokio::pin!(sink);
+        for item in [
+            Structure {
+                name: "Foo Bar".into(),
+                size: 42,
+                on: true,
+            },
+            Structure {
+                name: "Quux".into(),
+                size: 23,
+                on: false,
+            },
+            Structure {
+                name: "Gnusto Cleesh".into(),
+                size: 17,
+                on: true,
+            },
+        ] {
+            sink.feed(item).await.unwrap();
+        }
+        sink.close().await.unwrap();
+    }
+    tmpfile.assert(concat!(
+        "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+        "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+        "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
+    ));
+}
