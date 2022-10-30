@@ -16,6 +16,7 @@ pin-project-lite = { version = "0.2.9", optional = true }
 serde = "1.0.147"
 serde_json = "1.0.87"
 tokio = { version = "1.21.2", features = ["io-util"], optional = true }
+tokio-stream = { version = "0.1.11", optional = true }
 
 [dev-dependencies]
 assert_fs = "1.0.7"
@@ -23,4 +24,4 @@ serde = { version = "1.0.147", features = ["derive"] }
 tokio = { version = "1.21.2", features = ["fs", "macros", "rt"] }
 
 [features]
-async = ["pin-project-lite", "tokio"]
+async = ["pin-project-lite", "tokio", "tokio-stream"]
