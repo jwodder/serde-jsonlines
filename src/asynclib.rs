@@ -1,4 +1,5 @@
 #![cfg(feature = "async")]
+#![cfg_attr(docsrs, doc(cfg(feature = "async")))]
 use pin_project_lite::pin_project;
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;

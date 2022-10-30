@@ -1,3 +1,4 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
 //! Read & write JSON Lines documents
 //!
 //! JSON Lines (a.k.a. newline-delimited JSON) is a simple format for storing

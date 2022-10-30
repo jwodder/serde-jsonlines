@@ -25,3 +25,7 @@ tokio = { version = "1.21.2", features = ["fs", "macros", "rt"] }
 
 [features]
 async = ["pin-project-lite", "tokio", "tokio-stream"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
