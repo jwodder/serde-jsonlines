@@ -1,12 +1,17 @@
 #![cfg(feature = "async")]
+use pin_project_lite::pin_project;
 use serde::de::DeserializeOwned;
 use std::io::Result;
 use std::marker::Unpin;
+use std::pin::Pin;
 use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 
-#[derive(Debug)]
-pub struct AsyncJsonLinesReader<R> {
-    inner: R,
+pin_project! {
+    #[derive(Debug)]
+    pub struct AsyncJsonLinesReader<R> {
+        #[pin]
+        inner: R,
+    }
 }
 
 impl<R> AsyncJsonLinesReader<R> {
@@ -29,6 +34,11 @@ impl<R> AsyncJsonLinesReader<R> {
     /// Get a mutable reference to the underlying reader
     pub fn get_mut(&mut self) -> &mut R {
         &mut self.inner
+    }
+
+    /// Get a pinned mutable reference to the underlying reader
+    pub fn get_pin_mut(self: Pin<&mut Self>) -> Pin<&mut R> {
+        self.project().inner
     }
 }
 

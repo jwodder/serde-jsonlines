@@ -128,3 +128,26 @@ async fn test_read_then_write_then_read() {
     );
     assert_eq!(reader.read::<Structure>().await.unwrap(), None);
 }
+
+#[tokio::test]
+async fn test_read_one_then_read_pin_mut() {
+    let fp = BufReader::new(
+        File::open(Path::new(DATA_DIR).join("sample02.txt"))
+            .await
+            .unwrap(),
+    );
+    let reader = AsyncJsonLinesReader::new(fp);
+    tokio::pin!(reader);
+    assert_eq!(
+        reader.read::<Structure>().await.unwrap(),
+        Some(Structure {
+            name: "Foo Bar".into(),
+            size: 42,
+            on: true,
+        })
+    );
+    let mut fp: Pin<&mut BufReader<File>> = reader.get_pin_mut();
+    let mut s = String::new();
+    fp.read_line(&mut s).await.unwrap();
+    assert_eq!(s, "Not JSON.\n");
+}
