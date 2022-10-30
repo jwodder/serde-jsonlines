@@ -67,6 +67,7 @@ async fn test_write_one_then_write_inner() {
         writer.flush().await.unwrap();
         let mut fp: File = Pin::into_inner(writer).into_inner();
         fp.write_all(b"Not JSON\n").await.unwrap();
+        fp.flush().await.unwrap();
     }
     tmpfile.assert("{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\nNot JSON\n");
 }
@@ -89,6 +90,7 @@ async fn test_write_one_then_write_pin_mut() {
         writer.flush().await.unwrap();
         let mut fp: Pin<&mut File> = writer.get_pin_mut();
         fp.write_all(b"Not JSON\n").await.unwrap();
+        fp.flush().await.unwrap();
     }
     tmpfile.assert("{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\nNot JSON\n");
 }
