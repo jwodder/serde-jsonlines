@@ -22,6 +22,9 @@ if, say, different lines are different types) by wrapping a `BufRead` or
 `Write` value in a `JsonLinesReader` or `JsonLinesWriter` and then calling the
 wrapped structure's `read()` or `write()` method, respectively.
 
+When the `async` feature is enabled, analogous types for working with JSON
+Lines asynchronously under `tokio` become available.
+
 Installation
 ============
 

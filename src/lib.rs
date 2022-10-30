@@ -20,6 +20,9 @@
 //! and then calling the wrapped structure's [`read()`][JsonLinesReader::read]
 //! or [`write()`][JsonLinesWriter::write] method, respectively.
 //!
+//! When the `async` feature is enabled, analogous types for working with JSON
+//! Lines asynchronously under [`tokio`] become available.
+//!
 //! # Example
 //!
 //! ```no_run

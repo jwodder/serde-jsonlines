@@ -112,6 +112,10 @@ pin_project! {
     /// This stream yields items of type `Result<T, std::io::Error>`.  Errors
     /// occurr under the same conditions as for
     /// [`AsyncJsonLinesReader::read()`].
+    ///
+    /// Streams of this type are returned by
+    /// [`AsyncJsonLinesReader::read_all()`] and
+    /// [`AsyncBufReadJsonLines::json_lines()`].
     #[derive(Debug)]
     #[must_use = "streams do nothing unless polled"]
     pub struct JsonLinesStream<R, T> {
