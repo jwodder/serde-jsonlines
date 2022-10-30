@@ -19,6 +19,63 @@ pin_project! {
     /// An `AsyncJsonLinesReader` wraps a [`tokio::io::AsyncBufRead`] instance
     /// and parses each line as a [`serde::de::DeserializeOwned`] value in
     /// JSON.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use serde::Deserialize;
+    /// use serde_jsonlines::AsyncJsonLinesReader;
+    /// use tokio::fs::{write, File};
+    /// use tokio::io::BufReader;
+    /// use tokio_stream::StreamExt;
+    ///
+    /// #[derive(Debug, Deserialize, PartialEq)]
+    /// pub struct Structure {
+    ///     pub name: String,
+    ///     pub size: i32,
+    ///     pub on: bool,
+    /// }
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> std::io::Result<()> {
+    ///     write(
+    ///         "example.jsonl",
+    ///         concat!(
+    ///             "{\"name\": \"Foo Bar\", \"on\":true,\"size\": 42 }\n",
+    ///             "{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n",
+    ///             " {\"name\": \"Gnusto Cleesh\" , \"on\": true, \"size\": 17}\n",
+    ///         ),
+    ///     )
+    ///     .await?;
+    ///     let fp = BufReader::new(File::open("example.jsonl").await?);
+    ///     let reader = AsyncJsonLinesReader::new(fp);
+    ///     let items = reader
+    ///         .read_all::<Structure>()
+    ///         .collect::<std::io::Result<Vec<_>>>()
+    ///         .await?;
+    ///     assert_eq!(
+    ///         items,
+    ///         [
+    ///             Structure {
+    ///                 name: "Foo Bar".into(),
+    ///                 size: 42,
+    ///                 on: true,
+    ///             },
+    ///             Structure {
+    ///                 name: "Quux".into(),
+    ///                 size: 23,
+    ///                 on: false,
+    ///             },
+    ///             Structure {
+    ///                 name: "Gnusto Cleesh".into(),
+    ///                 size: 17,
+    ///                 on: true,
+    ///             },
+    ///         ]
+    ///     );
+    ///     Ok(())
+    /// }
+    /// ```
     #[derive(Debug)]
     pub struct AsyncJsonLinesReader<R> {
         #[pin]
@@ -146,6 +203,62 @@ pin_project! {
     /// An `AsyncJsonLinesWriter` wraps a [`tokio::io::AsyncWrite`] instance
     /// and writes [`serde::Serialize`] values to it by serializing each one as
     /// a single line of JSON and appending a newline.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use serde::Serialize;
+    /// use serde_jsonlines::AsyncJsonLinesWriter;
+    /// use tokio::fs::{read_to_string, File};
+    ///
+    /// #[derive(Serialize)]
+    /// pub struct Structure {
+    ///     pub name: String,
+    ///     pub size: i32,
+    ///     pub on: bool,
+    /// }
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> std::io::Result<()> {
+    ///     {
+    ///         let fp = File::create("example.jsonl").await?;
+    ///         let writer = AsyncJsonLinesWriter::new(fp);
+    ///         tokio::pin!(writer);
+    ///         writer
+    ///             .write(&Structure {
+    ///                 name: "Foo Bar".into(),
+    ///                 size: 42,
+    ///                 on: true,
+    ///             })
+    ///             .await?;
+    ///         writer
+    ///             .write(&Structure {
+    ///                 name: "Quux".into(),
+    ///                 size: 23,
+    ///                 on: false,
+    ///             })
+    ///             .await?;
+    ///         writer
+    ///             .write(&Structure {
+    ///                 name: "Gnusto Cleesh".into(),
+    ///                 size: 17,
+    ///                 on: true,
+    ///             })
+    ///             .await?;
+    ///         writer.flush().await?;
+    ///     }
+    ///     // End the block to close the writer
+    ///     assert_eq!(
+    ///         read_to_string("example.jsonl").await?,
+    ///         concat!(
+    ///             "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+    ///             "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+    ///             "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
+    ///         )
+    ///     );
+    ///     Ok(())
+    /// }
+    /// ```
     #[derive(Debug)]
     pub struct AsyncJsonLinesWriter<W> {
         #[pin]
@@ -237,6 +350,10 @@ impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
 pin_project! {
     /// An asynchronous sink that serializes input values of type `T` as JSON
     /// and writes them to the underlying [`AsyncWrite`] value `W`.
+    ///
+    /// Sinks of this type are returned by
+    /// [`AsyncJsonLinesWriter::into_sink()`] and
+    /// [`AsyncWriteJsonLines::into_json_lines_sink()`].
     #[derive(Debug)]
     #[must_use = "sinks do nothing unless polled"]
     pub struct JsonLinesSink<W, T> {
@@ -313,6 +430,63 @@ where
 
 /// An extension trait for the [`tokio::io::AsyncBufRead`] trait that adds a
 /// `json_lines()` method
+///
+/// # Example
+///
+/// ```no_run
+/// use serde::Deserialize;
+/// use serde_jsonlines::AsyncBufReadJsonLines;
+/// use std::io::Result;
+/// use tokio::fs::{write, File};
+/// use tokio::io::BufReader;
+/// use tokio_stream::StreamExt;
+///
+/// #[derive(Debug, Deserialize, PartialEq)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// #[tokio::main]
+/// async fn main() -> Result<()> {
+///     write(
+///         "example.jsonl",
+///         concat!(
+///             "{\"name\": \"Foo Bar\", \"on\":true,\"size\": 42 }\n",
+///             "{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n",
+///             " {\"name\": \"Gnusto Cleesh\" , \"on\": true, \"size\": 17}\n",
+///         ),
+///     )
+///     .await?;
+///     let fp = BufReader::new(File::open("example.jsonl").await?);
+///     let items = fp
+///         .json_lines::<Structure>()
+///         .collect::<Result<Vec<_>>>()
+///         .await?;
+///     assert_eq!(
+///         items,
+///         [
+///             Structure {
+///                 name: "Foo Bar".into(),
+///                 size: 42,
+///                 on: true,
+///             },
+///             Structure {
+///                 name: "Quux".into(),
+///                 size: 23,
+///                 on: false,
+///             },
+///             Structure {
+///                 name: "Gnusto Cleesh".into(),
+///                 size: 17,
+///                 on: true,
+///             },
+///         ]
+///     );
+///     Ok(())
+/// }
+/// ```
 pub trait AsyncBufReadJsonLines: AsyncBufRead {
     /// Consume the reader and return an asynchronous stream over the
     /// deserialized JSON values from each line.
@@ -337,6 +511,59 @@ impl<R: AsyncBufRead> AsyncBufReadJsonLines for R {}
 
 /// An extension trait for the [`tokio::io::AsyncWrite`] trait that adds an
 /// `into_json_lines_sink()` method
+///
+/// # Example
+///
+/// ```no_run
+/// use futures::sink::SinkExt;
+/// use serde::Serialize;
+/// use serde_jsonlines::AsyncWriteJsonLines;
+/// use tokio::fs::{read_to_string, File};
+///
+/// #[derive(Serialize)]
+/// pub struct Structure {
+///     pub name: String,
+///     pub size: i32,
+///     pub on: bool,
+/// }
+///
+/// #[tokio::main]
+/// async fn main() -> std::io::Result<()> {
+///     {
+///         let fp = File::create("example.jsonl").await?;
+///         let sink = fp.into_json_lines_sink();
+///         tokio::pin!(sink);
+///         sink.send(Structure {
+///             name: "Foo Bar".into(),
+///             size: 42,
+///             on: true,
+///         })
+///         .await?;
+///         sink.send(Structure {
+///             name: "Quux".into(),
+///             size: 23,
+///             on: false,
+///         })
+///         .await?;
+///         sink.send(Structure {
+///             name: "Gnusto Cleesh".into(),
+///             size: 17,
+///             on: true,
+///         })
+///         .await?;
+///         sink.close().await?;
+///     }
+///     assert_eq!(
+///         read_to_string("example.jsonl").await?,
+///         concat!(
+///             "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+///             "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+///             "{\"name\":\"Gnusto Cleesh\",\"size\":17,\"on\":true}\n",
+///         )
+///     );
+///     Ok(())
+/// }
+/// ```
 pub trait AsyncWriteJsonLines: AsyncWrite {
     /// Consume the writer and return an asynchronous sink for serializing
     /// values as JSON and writing them to the writer.
