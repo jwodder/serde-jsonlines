@@ -64,10 +64,10 @@ use std::io::{BufRead, BufReader, BufWriter, Result, Write};
 use std::marker::PhantomData;
 use std::path::Path;
 
-/// A type alias for an [`Iter`] on a buffered file object.
+/// A type alias for an [`JsonLinesIter`] on a buffered file object.
 ///
 /// This is the return type of [`json_lines()`].
-pub type JsonLinesIter<T> = Iter<BufReader<File>, T>;
+pub type JsonLinesFileIter<T> = JsonLinesIter<BufReader<File>, T>;
 
 /// A structure for writing JSON values as JSON Lines.
 ///
@@ -298,8 +298,8 @@ impl<R> JsonLinesReader<R> {
     /// Note that all deserialized values will be of the same type.  If you
     /// wish to read lines of varying types, use the
     /// [`read()`][JsonLinesReader::read] method instead.
-    pub fn read_all<T>(self) -> Iter<R, T> {
-        Iter {
+    pub fn read_all<T>(self) -> JsonLinesIter<R, T> {
+        JsonLinesIter {
             reader: self,
             _output: PhantomData,
         }
@@ -342,15 +342,15 @@ impl<R: BufRead> JsonLinesReader<R> {
 /// This iterator yields items of type `Result<T, std::io::Error>`.  Errors
 /// occurr under the same conditions as for [`JsonLinesReader::read()`].
 ///
-/// Iterators of this type are returned by [`JsonLinesReader::iter()`],
+/// Iterators of this type are returned by [`JsonLinesReader::read_all()`],
 /// [`BufReadExt::json_lines()`], and [`json_lines()`].
 #[derive(Debug)]
-pub struct Iter<R, T> {
+pub struct JsonLinesIter<R, T> {
     reader: JsonLinesReader<R>,
     _output: PhantomData<T>,
 }
 
-impl<R, T> Iterator for Iter<R, T>
+impl<R, T> Iterator for JsonLinesIter<R, T>
 where
     T: DeserializeOwned,
     R: BufRead,
@@ -503,7 +503,7 @@ pub trait BufReadExt: BufRead {
     /// [`JsonLinesReader::read()`].
     ///
     /// Note that all deserialized values will be of the same type.
-    fn json_lines<T>(self) -> Iter<Self, T>
+    fn json_lines<T>(self) -> JsonLinesIter<Self, T>
     where
         Self: Sized,
     {
@@ -729,7 +729,7 @@ where
 /// }
 /// ```
 
-pub fn json_lines<T, P: AsRef<Path>>(path: P) -> Result<JsonLinesIter<T>> {
+pub fn json_lines<T, P: AsRef<Path>>(path: P) -> Result<JsonLinesFileIter<T>> {
     let fp = BufReader::new(File::open(path)?);
     Ok(fp.json_lines())
 }
