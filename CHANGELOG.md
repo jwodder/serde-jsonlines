@@ -1,5 +1,5 @@
-v0.4.0 (in development)
------------------------
+v0.4.0 (2022-10-31)
+-------------------
 - Added tokio-based asynchronous functionality:
     - `AsyncJsonLinesReader`
     - `AsyncJsonLinesWriter`
