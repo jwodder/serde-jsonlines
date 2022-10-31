@@ -375,6 +375,11 @@ impl<W, T> JsonLinesSink<W, T> {
         }
     }
 
+    /// Consume the sink and return the underlying writer
+    pub fn into_inner(self) -> W {
+        self.inner
+    }
+
     // Based on the implementation of futures::io::IntoSink
     fn poll_flush_buffer(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<()>>
     where

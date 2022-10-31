@@ -6,6 +6,7 @@ use futures::sink::SinkExt;
 use futures::stream::empty;
 use serde_jsonlines::{AsyncBufReadJsonLines, AsyncWriteJsonLines};
 use std::path::Path;
+use std::pin::Pin;
 use tokio::fs::File;
 use tokio::io::BufReader;
 use tokio_stream::StreamExt;
@@ -107,4 +108,40 @@ async fn test_no_write_json_lines() {
         sink.close().await.unwrap();
     }
     tmpfile.assert("");
+}
+
+#[tokio::test]
+async fn test_send_then_send_different_type() {
+    let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
+    {
+        let fp = File::create(&tmpfile).await.unwrap();
+        let mut sink = Pin::new(Box::new(fp.into_json_lines_sink()));
+        for item in [
+            Structure {
+                name: "Foo Bar".into(),
+                size: 42,
+                on: true,
+            },
+            Structure {
+                name: "Quux".into(),
+                size: 23,
+                on: false,
+            },
+        ] {
+            sink.send(item).await.unwrap()
+        }
+        let sink = Pin::into_inner(sink)
+            .into_inner()
+            .into_json_lines_sink::<Point>();
+        tokio::pin!(sink);
+        sink.send(Point { x: 69, y: 105 }).await.unwrap();
+        sink.send(Point { x: 314, y: 218 }).await.unwrap();
+        sink.close().await.unwrap();
+    }
+    tmpfile.assert(concat!(
+        "{\"name\":\"Foo Bar\",\"size\":42,\"on\":true}\n",
+        "{\"name\":\"Quux\",\"size\":23,\"on\":false}\n",
+        "{\"x\":69,\"y\":105}\n",
+        "{\"x\":314,\"y\":218}\n",
+    ));
 }
