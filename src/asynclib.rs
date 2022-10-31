@@ -376,6 +376,9 @@ impl<W, T> JsonLinesSink<W, T> {
     }
 
     /// Consume the sink and return the underlying writer
+    ///
+    /// If the sink is not flushed prior to calling this method, data may be
+    /// lost.
     pub fn into_inner(self) -> W {
         self.inner
     }
