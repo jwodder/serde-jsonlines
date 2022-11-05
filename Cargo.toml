@@ -2,7 +2,7 @@
 name = "serde-jsonlines"
 version = "0.5.0-dev"
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.60"
 description = "Read & write JSON Lines documents"
 authors = ["John Thorvald Wodder II <serde-jsonlines@varonathe.org>"]
 repository = "https://github.com/jwodder/serde-jsonlines"
