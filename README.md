@@ -37,6 +37,13 @@ Installation
 serde-jsonlines = "0.4.0"
 ```
 
+To use `serde-jsonlines` with its `async` feature, add the following instead:
+
+```toml
+[dependencies]
+serde-jsonlines = { version = "0.4.0", features = ["async"] }
+```
+
 
 Example
 =======
