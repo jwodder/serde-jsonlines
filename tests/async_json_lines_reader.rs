@@ -247,11 +247,7 @@ async fn test_read_all_invalid_json() {
 
     let e = items.next().await.unwrap().unwrap_err();
     assert_eq!(e.kind(), ErrorKind::UnexpectedEof);
-    assert!(e
-        .into_inner()
-        .unwrap()
-        .downcast::<serde_json::Error>()
-        .is_ok());
+    assert!(e.get_ref().unwrap().is::<serde_json::Error>());
 
     assert_eq!(
         items.next().await.unwrap().unwrap(),
@@ -264,19 +260,11 @@ async fn test_read_all_invalid_json() {
 
     let e = items.next().await.unwrap().unwrap_err();
     assert_eq!(e.kind(), ErrorKind::InvalidData);
-    assert!(e
-        .into_inner()
-        .unwrap()
-        .downcast::<serde_json::Error>()
-        .is_ok());
+    assert!(e.get_ref().unwrap().is::<serde_json::Error>());
 
     let e = items.next().await.unwrap().unwrap_err();
     assert_eq!(e.kind(), ErrorKind::InvalidData);
-    assert!(e
-        .into_inner()
-        .unwrap()
-        .downcast::<serde_json::Error>()
-        .is_ok());
+    assert!(e.get_ref().unwrap().is::<serde_json::Error>());
 
     assert_eq!(
         items.next().await.unwrap().unwrap(),
