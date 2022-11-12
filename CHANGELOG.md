@@ -1,7 +1,9 @@
 v0.5.0 (in development)
 -----------------------
-- Add `asynchronous` category to crate metadata
+- Added `asynchronous` category to crate metadata
 - Increased MSRV to 1.60
+- Removed the implicit features for the optional dependencies that comprise the
+  `async` feature
 
 v0.4.0 (2022-10-31)
 -------------------
