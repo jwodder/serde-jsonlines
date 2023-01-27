@@ -2,7 +2,7 @@ use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
 use serde_jsonlines::JsonLinesWriter;
 use std::fs::File;
-use std::io::{Seek, SeekFrom, Write};
+use std::io::{Seek, Write};
 use std::iter::empty;
 mod common;
 use common::*;
@@ -125,7 +125,7 @@ fn test_write_then_back_up_then_write() {
             .unwrap();
         writer.flush().unwrap();
         let fp: &mut File = writer.get_mut();
-        fp.seek(SeekFrom::Start(0)).unwrap();
+        fp.rewind().unwrap();
         writer
             .write(&Structure {
                 name: "Gnusto Cleesh".into(),
