@@ -28,7 +28,7 @@ Lines asynchronously under `tokio` become available.
 Installation
 ============
 
-`serde-jsonlines` requires version 1.56 of Rust or higher.  To use the
+`serde-jsonlines` requires version 1.65 of Rust or higher.  To use the
 `serde-jsonlines` library in your Cargo project, add the following to your
 `Cargo.toml`:
 
