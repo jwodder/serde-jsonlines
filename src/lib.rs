@@ -73,7 +73,7 @@ mod asynclib;
 #[cfg(feature = "async")]
 pub use asynclib::*;
 
-/// A type alias for an [`JsonLinesIter`] on a buffered file object.
+/// A type alias for a [`JsonLinesIter`] on a buffered file object.
 ///
 /// This is the return type of [`json_lines()`].
 pub type JsonLinesFileIter<T> = JsonLinesIter<BufReader<File>, T>;
