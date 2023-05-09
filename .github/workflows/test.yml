@@ -54,7 +54,7 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Build crate
-        run: cargo build --verbose
+        run: cargo hack --feature-powerset build --all-targets --verbose
 
       - name: Test crate
         run: cargo hack --feature-powerset test --verbose
