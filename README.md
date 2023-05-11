@@ -1,6 +1,7 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![CI Status](https://github.com/jwodder/serde-jsonlines/actions/workflows/test.yml/badge.svg)](https://github.com/jwodder/serde-jsonlines/actions/workflows/test.yml)
 [![codecov.io](https://codecov.io/gh/jwodder/serde-jsonlines/branch/master/graph/badge.svg)](https://codecov.io/gh/jwodder/serde-jsonlines)
+[![Minimum Supported Rust Version](https://img.shields.io/badge/MSRV-1.65-orange)](https://www.rust-lang.org)
 [![MIT License](https://img.shields.io/github/license/jwodder/serde-jsonlines.svg)](https://opensource.org/licenses/MIT)
 
 [GitHub](https://github.com/jwodder/serde-jsonlines) | [crates.io](https://crates.io/crates/serde-jsonlines) | [Documentation](https://docs.rs/serde-jsonlines) | [Issues](https://github.com/jwodder/serde-jsonlines/issues) | [Changelog](https://github.com/jwodder/serde-jsonlines/blob/master/CHANGELOG.md)
@@ -24,26 +25,6 @@ wrapped structure's `read()` or `write()` method, respectively.
 
 When the `async` feature is enabled, analogous types for working with JSON
 Lines asynchronously under `tokio` become available.
-
-Installation
-============
-
-`serde-jsonlines` requires version 1.65 of Rust or higher.  To use the
-`serde-jsonlines` library in your Cargo project, add the following to your
-`Cargo.toml`:
-
-```toml
-[dependencies]
-serde-jsonlines = "0.4.0"
-```
-
-To use `serde-jsonlines` with its `async` feature, add the following instead:
-
-```toml
-[dependencies]
-serde-jsonlines = { version = "0.4.0", features = ["async"] }
-```
-
 
 Example
 =======

@@ -1,6 +1,4 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
-//! Read & write JSON Lines documents
-//!
 //! JSON Lines (a.k.a. newline-delimited JSON) is a simple format for storing
 //! sequences of JSON values in which each value is serialized on a single line
 //! and terminated by a newline sequence.  The `serde-jsonlines` crate provides
@@ -23,7 +21,8 @@
 //! When the `async` feature is enabled, analogous types for working with JSON
 //! Lines asynchronously under [`tokio`] become available.
 //!
-//! # Example
+//! Example
+//! =======
 //!
 //! ```no_run
 //! use serde::{Deserialize, Serialize};

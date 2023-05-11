@@ -4,6 +4,7 @@ v0.5.0 (in development)
 - Increased MSRV to 1.65
 - Removed the implicit features for the optional dependencies that comprise the
   `async` feature
+- Remove library installation instructions from README
 
 v0.4.0 (2022-10-31)
 -------------------
