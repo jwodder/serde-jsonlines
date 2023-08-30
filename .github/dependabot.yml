@@ -9,6 +9,10 @@ updates:
     commit-message:
       prefix: "[cargo]"
       include: scope
+    groups:
+      deps:
+        patterns:
+          - "*"
     labels:
       - dependencies
       - d:cargo
