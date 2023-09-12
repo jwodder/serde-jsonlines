@@ -1,7 +1,7 @@
 v0.5.0 (in development)
 -----------------------
 - Added `asynchronous` category to crate metadata
-- Increased MSRV to 1.65
+- Increased MSRV to 1.70
 - Removed the implicit features for the optional dependencies that comprise the
   `async` feature
 - Remove library installation instructions from README
