@@ -2,8 +2,8 @@ name: Test
 
 on:
   push:
-    branches-ignore:
-      - 'dependabot/**'
+    branches:
+      - master
   pull_request:
   schedule:
     - cron: '0 12 * * *'
@@ -78,7 +78,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-          components: llvm-tools-preview
+          components: llvm-tools
 
       - name: Activate cache
         if: github.actor != 'dependabot[bot]'
