@@ -736,7 +736,6 @@ where
 ///     Ok(())
 /// }
 /// ```
-
 pub fn json_lines<T, P: AsRef<Path>>(path: P) -> Result<JsonLinesFileIter<T>> {
     let fp = BufReader::new(File::open(path)?);
     Ok(fp.json_lines())

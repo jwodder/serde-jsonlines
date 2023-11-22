@@ -129,6 +129,7 @@ impl<R: AsyncBufRead> AsyncJsonLinesReader<R> {
     /// `AsyncJsonLinesReader` afterwards will pick up on the next line as
     /// though the error never happened, so invalid JSON can be easily ignored
     /// if you so wish.
+    #[allow(clippy::future_not_send)] // The Future is Send if R is Send
     pub async fn read<T>(&mut self) -> Result<Option<T>>
     where
         T: DeserializeOwned,
@@ -319,6 +320,7 @@ impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
     ///
     /// Has the same error conditions as [`serde_json::to_writer()`] and
     /// [`tokio::io::AsyncWriteExt::write_all()`].
+    #[allow(clippy::future_not_send)] // The Future is Send if W is Send
     pub async fn write<T>(&mut self, value: &T) -> Result<()>
     where
         T: ?Sized + Serialize,
@@ -338,6 +340,7 @@ impl<W: AsyncWrite> AsyncJsonLinesWriter<W> {
     /// # Errors
     ///
     /// Has the same error conditions as [`tokio::io::AsyncWriteExt::flush()`].
+    #[allow(clippy::future_not_send)] // The Future is Send if W is Send
     pub async fn flush(&mut self) -> Result<()>
     where
         W: Unpin,
@@ -405,7 +408,10 @@ where
     }
 
     fn start_send(self: Pin<&mut Self>, item: T) -> Result<()> {
-        debug_assert!(self.buffer.is_none());
+        debug_assert!(
+            self.buffer.is_none(),
+            "buffer should be None after calling poll_ready()"
+        );
         let this = self.project();
         let mut buf = serde_json::to_vec(&item)?;
         buf.push(b'\n');
@@ -581,3 +587,32 @@ pub trait AsyncWriteJsonLines: AsyncWrite {
 }
 
 impl<W: AsyncWrite> AsyncWriteJsonLines for W {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn require_send<T: Send>(_t: T) {}
+
+    #[test]
+    fn test_read_is_send_if_r_is_send() {
+        let mut ajreader = AsyncJsonLinesReader::new(tokio::io::empty());
+        let fut = ajreader.read::<String>();
+        require_send(fut);
+    }
+
+    #[test]
+    fn test_write_is_send_if_w_is_send() {
+        let mut ajwriter = AsyncJsonLinesWriter::new(tokio::io::sink());
+        let s = String::from("This is test text.");
+        let fut = ajwriter.write(&s);
+        require_send(fut);
+    }
+
+    #[test]
+    fn test_flush_is_send_if_w_is_send() {
+        let mut ajwriter = AsyncJsonLinesWriter::new(tokio::io::sink());
+        let fut = ajwriter.flush();
+        require_send(fut);
+    }
+}

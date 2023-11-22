@@ -84,7 +84,7 @@ async fn test_into_json_lines_sink() {
                 on: true,
             },
         ] {
-            sink.send(item).await.unwrap()
+            sink.send(item).await.unwrap();
         }
         sink.close().await.unwrap();
     }
