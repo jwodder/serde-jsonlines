@@ -75,7 +75,7 @@ pin_project! {
     ///     Ok(())
     /// }
     /// ```
-    #[derive(Debug)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct AsyncJsonLinesReader<R> {
         #[pin]
         inner: R,
@@ -259,7 +259,7 @@ pin_project! {
     ///     Ok(())
     /// }
     /// ```
-    #[derive(Debug)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     pub struct AsyncJsonLinesWriter<W> {
         #[pin]
         inner: W,
@@ -356,7 +356,7 @@ pin_project! {
     /// Sinks of this type are returned by
     /// [`AsyncJsonLinesWriter::into_sink()`] and
     /// [`AsyncWriteJsonLines::into_json_lines_sink()`].
-    #[derive(Debug)]
+    #[derive(Clone, Debug, Eq, PartialEq)]
     #[must_use = "sinks do nothing unless polled"]
     pub struct JsonLinesSink<W, T> {
         #[pin]

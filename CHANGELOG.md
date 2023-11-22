@@ -5,6 +5,9 @@ v0.5.0 (in development)
 - Removed the implicit features for the optional dependencies that comprise the
   `async` feature
 - Remove library installation instructions from README
+- Derive `Clone`, `Eq`, and `PartialEq` for `JsonLinesReader`,
+  `JsonLinesWriter`, `JsonLinesIter`, `AsyncJsonLinesReader`,
+  `AsyncJsonLinesWriter`, and `JsonLinesSink`
 
 v0.4.0 (2022-10-31)
 -------------------

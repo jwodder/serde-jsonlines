@@ -132,7 +132,7 @@ pub type JsonLinesFileIter<T> = JsonLinesIter<BufReader<File>, T>;
 ///     Ok(())
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct JsonLinesWriter<W> {
     inner: W,
 }
@@ -270,7 +270,7 @@ impl<W: Write> JsonLinesWriter<W> {
 ///     Ok(())
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct JsonLinesReader<R> {
     inner: R,
 }
@@ -352,7 +352,7 @@ impl<R: BufRead> JsonLinesReader<R> {
 ///
 /// Iterators of this type are returned by [`JsonLinesReader::read_all()`],
 /// [`BufReadExt::json_lines()`], and [`json_lines()`].
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct JsonLinesIter<R, T> {
     reader: JsonLinesReader<R>,
     _output: PhantomData<T>,
