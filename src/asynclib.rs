@@ -1,15 +1,14 @@
 #![cfg(feature = "async")]
 #![cfg_attr(docsrs, doc(cfg(feature = "async")))]
-use futures::ready;
-use futures::sink::Sink;
+use futures_core::Stream;
+use futures_sink::Sink;
 use pin_project_lite::pin_project;
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
 use std::marker::{PhantomData, Unpin};
 use std::pin::Pin;
-use std::task::{Context, Poll};
+use std::task::{ready, Context, Poll};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, Lines};
-use tokio_stream::Stream;
 
 pin_project! {
     /// A structure for asynchronously reading JSON values from JSON Lines
@@ -22,11 +21,11 @@ pin_project! {
     /// # Example
     ///
     /// ```no_run
+    /// use futures_util::TryStreamExt;
     /// use serde::Deserialize;
     /// use serde_jsonlines::AsyncJsonLinesReader;
     /// use tokio::fs::{write, File};
     /// use tokio::io::BufReader;
-    /// use tokio_stream::StreamExt;
     ///
     /// #[derive(Debug, Deserialize, PartialEq)]
     /// pub struct Structure {
@@ -50,7 +49,7 @@ pin_project! {
     ///     let reader = AsyncJsonLinesReader::new(fp);
     ///     let items = reader
     ///         .read_all::<Structure>()
-    ///         .collect::<std::io::Result<Vec<_>>>()
+    ///         .try_collect::<Vec<_>>()
     ///         .await?;
     ///     assert_eq!(
     ///         items,
@@ -439,12 +438,11 @@ where
 /// # Example
 ///
 /// ```no_run
+/// use futures_util::TryStreamExt;
 /// use serde::Deserialize;
 /// use serde_jsonlines::AsyncBufReadJsonLines;
-/// use std::io::Result;
 /// use tokio::fs::{write, File};
 /// use tokio::io::BufReader;
-/// use tokio_stream::StreamExt;
 ///
 /// #[derive(Debug, Deserialize, PartialEq)]
 /// pub struct Structure {
@@ -454,7 +452,7 @@ where
 /// }
 ///
 /// #[tokio::main]
-/// async fn main() -> Result<()> {
+/// async fn main() -> std::io::Result<()> {
 ///     write(
 ///         "example.jsonl",
 ///         concat!(
@@ -467,7 +465,7 @@ where
 ///     let fp = BufReader::new(File::open("example.jsonl").await?);
 ///     let items = fp
 ///         .json_lines::<Structure>()
-///         .collect::<Result<Vec<_>>>()
+///         .try_collect::<Vec<_>>()
 ///         .await?;
 ///     assert_eq!(
 ///         items,
@@ -520,7 +518,7 @@ impl<R: AsyncBufRead> AsyncBufReadJsonLines for R {}
 /// # Example
 ///
 /// ```no_run
-/// use futures::sink::SinkExt;
+/// use futures_util::SinkExt;
 /// use serde::Serialize;
 /// use serde_jsonlines::AsyncWriteJsonLines;
 /// use tokio::fs::{read_to_string, File};

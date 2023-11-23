@@ -2,13 +2,11 @@
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
-use futures::sink::SinkExt;
-use futures::stream::empty;
+use futures_util::{stream::empty, SinkExt, StreamExt};
 use serde_jsonlines::{AsyncBufReadJsonLines, AsyncWriteJsonLines};
 use std::path::Path;
 use tokio::fs::File;
 use tokio::io::BufReader;
-use tokio_stream::StreamExt;
 
 mod common;
 use common::*;

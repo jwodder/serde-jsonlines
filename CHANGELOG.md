@@ -1,3 +1,9 @@
+v0.6.0 (in development)
+-----------------------
+- Replaced `futures` and `tokio-stream` dependencies with `futures-core` and
+  `futures-sink`.  This is more lightweight and should fix a problem with the
+  `Sink` and `Stream` traits not being hyperlinked on docs.rs.
+
 v0.5.0 (2023-11-22)
 -------------------
 - Added `asynchronous` category to crate metadata

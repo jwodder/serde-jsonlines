@@ -1,13 +1,13 @@
 #![cfg(feature = "async")]
 use assert_fs::fixture::{FileTouch, FileWriteStr};
 use assert_fs::NamedTempFile;
+use futures_util::{StreamExt, TryStreamExt};
 use serde_jsonlines::AsyncJsonLinesReader;
-use std::io::{ErrorKind, Result, SeekFrom};
+use std::io::{ErrorKind, SeekFrom};
 use std::path::Path;
 use std::pin::Pin;
 use tokio::fs::{File, OpenOptions};
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, AsyncWriteExt, BufReader};
-use tokio_stream::StreamExt;
 
 mod common;
 use common::*;
@@ -201,7 +201,7 @@ async fn test_read_all_collect() {
     let reader = AsyncJsonLinesReader::new(fp);
     let items = reader
         .read_all::<Structure>()
-        .collect::<Result<Vec<_>>>()
+        .try_collect::<Vec<_>>()
         .await
         .unwrap();
     assert_eq!(

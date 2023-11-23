@@ -1,6 +1,6 @@
 [package]
 name = "serde-jsonlines"
-version = "0.5.0"
+version = "0.6.0-dev"
 edition = "2021"
 rust-version = "1.70"
 description = "Read & write JSON Lines documents"
@@ -12,20 +12,21 @@ categories = ["asynchronous", "encoding", "parser-implementations"]
 exclude = ["/.*"]
 
 [dependencies]
-futures = { version = "0.3.25", default-features = false, optional = true }
+futures-core = { version = "0.3.29", default-features = false, optional = true }
+futures-sink = { version = "0.3.29", default-features = false, optional = true }
 pin-project-lite = { version = "0.2.9", optional = true }
 serde = "1.0.147"
 serde_json = "1.0.87"
 tokio = { version = "1.21.2", features = ["io-util"], optional = true }
-tokio-stream = { version = "0.1.11", optional = true }
 
 [dev-dependencies]
 assert_fs = "1.0.7"
+futures-util = { version = "0.3.29", default-features = false, features = ["sink"] }
 serde = { version = "1.0.147", features = ["derive"] }
 tokio = { version = "1.21.2", features = ["fs", "macros", "rt", "rt-multi-thread"] }
 
 [features]
-async = ["dep:futures", "dep:pin-project-lite", "dep:tokio", "dep:tokio-stream"]
+async = ["dep:futures-core", "dep:futures-sink", "dep:pin-project-lite", "dep:tokio"]
 
 [package.metadata.docs.rs]
 all-features = true

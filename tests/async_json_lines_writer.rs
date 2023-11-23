@@ -1,8 +1,7 @@
 #![cfg(feature = "async")]
 use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
-use futures::sink::SinkExt;
-use futures::stream::empty;
+use futures_util::{stream::empty, SinkExt};
 use serde_jsonlines::AsyncJsonLinesWriter;
 use std::io::SeekFrom;
 use std::pin::Pin;
