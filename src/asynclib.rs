@@ -221,8 +221,7 @@ pin_project! {
     /// async fn main() -> std::io::Result<()> {
     ///     {
     ///         let fp = File::create("example.jsonl").await?;
-    ///         let writer = AsyncJsonLinesWriter::new(fp);
-    ///         tokio::pin!(writer);
+    ///         let mut writer = AsyncJsonLinesWriter::new(fp);
     ///         writer
     ///             .write(&Structure {
     ///                 name: "Foo Bar".into(),
@@ -534,8 +533,7 @@ impl<R: AsyncBufRead> AsyncBufReadJsonLines for R {}
 /// async fn main() -> std::io::Result<()> {
 ///     {
 ///         let fp = File::create("example.jsonl").await?;
-///         let sink = fp.into_json_lines_sink();
-///         tokio::pin!(sink);
+///         let mut sink = fp.into_json_lines_sink();
 ///         sink.send(Structure {
 ///             name: "Foo Bar".into(),
 ///             size: 42,
