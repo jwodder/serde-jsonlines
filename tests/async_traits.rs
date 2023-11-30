@@ -1,4 +1,6 @@
 #![cfg(feature = "async")]
+mod common;
+use crate::common::*;
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
@@ -8,9 +10,6 @@ use std::path::Path;
 use tokio::fs::File;
 use tokio::io::BufReader;
 
-mod common;
-use common::*;
-
 #[tokio::test]
 async fn test_json_lines() {
     let fp = BufReader::new(
@@ -18,8 +17,7 @@ async fn test_json_lines() {
             .await
             .unwrap(),
     );
-    let items = fp.json_lines::<Structure>();
-    tokio::pin!(items);
+    let mut items = fp.json_lines::<Structure>();
     assert_eq!(
         items.next().await.unwrap().unwrap(),
         Structure {
@@ -52,8 +50,7 @@ async fn test_no_json_lines() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     tmpfile.touch().unwrap();
     let fp = BufReader::new(File::open(&tmpfile).await.unwrap());
-    let items = fp.json_lines::<Structure>();
-    tokio::pin!(items);
+    let mut items = fp.json_lines::<Structure>();
     assert!(items.next().await.is_none());
     assert!(items.next().await.is_none());
     assert!(items.next().await.is_none());
@@ -63,8 +60,7 @@ async fn test_no_json_lines() {
 async fn test_into_json_lines_sink() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
-        let sink = File::create(&tmpfile).await.unwrap().into_json_lines_sink();
-        tokio::pin!(sink);
+        let mut sink = File::create(&tmpfile).await.unwrap().into_json_lines_sink();
         for item in [
             Structure {
                 name: "Foo Bar".into(),
@@ -97,10 +93,8 @@ async fn test_into_json_lines_sink() {
 async fn test_no_write_json_lines() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
-        let sink = File::create(&tmpfile).await.unwrap().into_json_lines_sink();
-        tokio::pin!(sink);
-        let stream = empty::<std::io::Result<Structure>>();
-        tokio::pin!(stream);
+        let mut sink = File::create(&tmpfile).await.unwrap().into_json_lines_sink();
+        let mut stream = empty::<std::io::Result<Structure>>();
         sink.send_all(&mut stream).await.unwrap();
         sink.close().await.unwrap();
     }

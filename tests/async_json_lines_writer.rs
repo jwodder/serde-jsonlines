@@ -1,4 +1,6 @@
 #![cfg(feature = "async")]
+mod common;
+use crate::common::*;
 use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
 use futures_util::{stream::empty, SinkExt};
@@ -7,16 +9,13 @@ use std::io::SeekFrom;
 use std::pin::Pin;
 use tokio::fs::File;
 use tokio::io::{AsyncSeekExt, AsyncWriteExt};
-mod common;
-use common::*;
 
 #[tokio::test]
 async fn test_write_one() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let writer = AsyncJsonLinesWriter::new(fp);
-        tokio::pin!(writer);
+        let mut writer = AsyncJsonLinesWriter::new(fp);
         writer
             .write(&Structure {
                 name: "Foo Bar".into(),
@@ -35,8 +34,7 @@ async fn test_write_two() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let writer = AsyncJsonLinesWriter::new(fp);
-        tokio::pin!(writer);
+        let mut writer = AsyncJsonLinesWriter::new(fp);
         writer
             .write(&Structure {
                 name: "Foo Bar".into(),
@@ -56,7 +54,7 @@ async fn test_write_one_then_write_inner() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let mut writer = Pin::new(Box::new(AsyncJsonLinesWriter::new(fp)));
+        let mut writer = AsyncJsonLinesWriter::new(fp);
         writer
             .write(&Structure {
                 name: "Foo Bar".into(),
@@ -66,7 +64,7 @@ async fn test_write_one_then_write_inner() {
             .await
             .unwrap();
         writer.flush().await.unwrap();
-        let mut fp: File = Pin::into_inner(writer).into_inner();
+        let mut fp: File = writer.into_inner();
         fp.write_all(b"Not JSON\n").await.unwrap();
         fp.flush().await.unwrap();
     }
@@ -78,8 +76,7 @@ async fn test_write_one_then_write_pin_mut() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let writer = AsyncJsonLinesWriter::new(fp);
-        tokio::pin!(writer);
+        let mut writer = AsyncJsonLinesWriter::new(fp);
         writer
             .write(&Structure {
                 name: "Foo Bar".into(),
@@ -89,6 +86,7 @@ async fn test_write_one_then_write_pin_mut() {
             .await
             .unwrap();
         writer.flush().await.unwrap();
+        tokio::pin!(writer);
         let mut fp: Pin<&mut File> = writer.get_pin_mut();
         fp.write_all(b"Not JSON\n").await.unwrap();
         fp.flush().await.unwrap();
@@ -101,7 +99,7 @@ async fn test_write_then_back_up_then_write() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let mut writer = Pin::new(Box::new(AsyncJsonLinesWriter::new(fp)));
+        let mut writer = AsyncJsonLinesWriter::new(fp);
         writer
             .write(&Structure {
                 name: "Foo Bar".into(),
@@ -131,8 +129,7 @@ async fn test_into_sink() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let sink = AsyncJsonLinesWriter::new(fp).into_sink();
-        tokio::pin!(sink);
+        let mut sink = AsyncJsonLinesWriter::new(fp).into_sink();
         for item in [
             Structure {
                 name: "Foo Bar".into(),
@@ -166,10 +163,8 @@ async fn test_into_sink_send_none() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let sink = AsyncJsonLinesWriter::new(fp).into_sink();
-        tokio::pin!(sink);
-        let stream = empty::<std::io::Result<Structure>>();
-        tokio::pin!(stream);
+        let mut sink = AsyncJsonLinesWriter::new(fp).into_sink();
+        let mut stream = empty::<std::io::Result<Structure>>();
         sink.send_all(&mut stream).await.unwrap();
         sink.close().await.unwrap();
     }
@@ -181,8 +176,7 @@ async fn test_feed_into_sink() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     {
         let fp = File::create(&tmpfile).await.unwrap();
-        let sink = AsyncJsonLinesWriter::new(fp).into_sink();
-        tokio::pin!(sink);
+        let mut sink = AsyncJsonLinesWriter::new(fp).into_sink();
         for item in [
             Structure {
                 name: "Foo Bar".into(),

@@ -1,4 +1,6 @@
 #![cfg(feature = "async")]
+mod common;
+use crate::common::*;
 use assert_fs::fixture::{FileTouch, FileWriteStr};
 use assert_fs::NamedTempFile;
 use futures_util::{StreamExt, TryStreamExt};
@@ -9,16 +11,12 @@ use std::pin::Pin;
 use tokio::fs::{File, OpenOptions};
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, AsyncWriteExt, BufReader};
 
-mod common;
-use common::*;
-
 #[tokio::test]
 async fn test_read_empty() {
     let tmpfile = NamedTempFile::new("test.jsonl").unwrap();
     tmpfile.touch().unwrap();
     let fp = BufReader::new(File::open(&tmpfile).await.unwrap());
-    let reader = AsyncJsonLinesReader::new(fp);
-    tokio::pin!(reader);
+    let mut reader = AsyncJsonLinesReader::new(fp);
     assert_eq!(reader.read::<Structure>().await.unwrap(), None);
     assert_eq!(reader.read::<Structure>().await.unwrap(), None);
     assert_eq!(reader.read::<Structure>().await.unwrap(), None);
@@ -31,8 +29,7 @@ async fn test_read_one() {
             .await
             .unwrap(),
     );
-    let reader = AsyncJsonLinesReader::new(fp);
-    tokio::pin!(reader);
+    let mut reader = AsyncJsonLinesReader::new(fp);
     assert_eq!(
         reader.read::<Structure>().await.unwrap(),
         Some(Structure {
@@ -50,7 +47,7 @@ async fn test_read_one_then_read_inner() {
             .await
             .unwrap(),
     );
-    let mut reader = Pin::new(Box::new(AsyncJsonLinesReader::new(fp)));
+    let mut reader = AsyncJsonLinesReader::new(fp);
     assert_eq!(
         reader.read::<Structure>().await.unwrap(),
         Some(Structure {
@@ -59,7 +56,7 @@ async fn test_read_one_then_read_inner() {
             on: true,
         })
     );
-    let mut fp: BufReader<File> = Pin::into_inner(reader).into_inner();
+    let mut fp: BufReader<File> = reader.into_inner();
     let mut s = String::new();
     fp.read_line(&mut s).await.unwrap();
     assert_eq!(s, "Not JSON.\n");
@@ -72,8 +69,7 @@ async fn test_read_two() {
             .await
             .unwrap(),
     );
-    let reader = AsyncJsonLinesReader::new(fp);
-    tokio::pin!(reader);
+    let mut reader = AsyncJsonLinesReader::new(fp);
     assert_eq!(
         reader.read::<Structure>().await.unwrap(),
         Some(Structure {
@@ -102,7 +98,7 @@ async fn test_read_then_write_then_read() {
             .await
             .unwrap(),
     );
-    let mut reader = Pin::new(Box::new(AsyncJsonLinesReader::new(fp)));
+    let mut reader = AsyncJsonLinesReader::new(fp);
     assert_eq!(
         reader.read::<Structure>().await.unwrap(),
         Some(Structure {
@@ -113,7 +109,6 @@ async fn test_read_then_write_then_read() {
     );
     assert_eq!(reader.read::<Structure>().await.unwrap(), None);
     let fp: &mut File = reader.get_mut().get_mut();
-    tokio::pin!(fp);
     let pos = fp.stream_position().await.unwrap();
     fp.write_all(b"{ \"name\":\"Quux\", \"on\" : false ,\"size\": 23}\n")
         .await
@@ -138,8 +133,7 @@ async fn test_read_one_then_read_pin_mut() {
             .await
             .unwrap(),
     );
-    let reader = AsyncJsonLinesReader::new(fp);
-    tokio::pin!(reader);
+    let mut reader = AsyncJsonLinesReader::new(fp);
     assert_eq!(
         reader.read::<Structure>().await.unwrap(),
         Some(Structure {
@@ -148,6 +142,7 @@ async fn test_read_one_then_read_pin_mut() {
             on: true,
         })
     );
+    tokio::pin!(reader);
     let mut fp: Pin<&mut BufReader<File>> = reader.get_pin_mut();
     let mut s = String::new();
     fp.read_line(&mut s).await.unwrap();
@@ -162,8 +157,7 @@ async fn test_read_all() {
             .unwrap(),
     );
     let reader = AsyncJsonLinesReader::new(fp);
-    let items = reader.read_all::<Structure>();
-    tokio::pin!(items);
+    let mut items = reader.read_all::<Structure>();
     assert_eq!(
         items.next().await.unwrap().unwrap(),
         Structure {
@@ -234,8 +228,7 @@ async fn test_read_all_invalid_json() {
             .unwrap(),
     );
     let reader = AsyncJsonLinesReader::new(fp);
-    let items = reader.read_all::<Structure>();
-    tokio::pin!(items);
+    let mut items = reader.read_all::<Structure>();
     assert_eq!(
         items.next().await.unwrap().unwrap(),
         Structure {
