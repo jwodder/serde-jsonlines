@@ -1,3 +1,5 @@
+mod common;
+use crate::common::*;
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
@@ -6,8 +8,6 @@ use std::fs::File;
 use std::io::{BufReader, Write};
 use std::iter::empty;
 use std::path::Path;
-mod common;
-use common::*;
 
 #[test]
 fn test_write_json_lines() {

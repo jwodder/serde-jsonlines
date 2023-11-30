@@ -1,11 +1,11 @@
+mod common;
+use crate::common::*;
 use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
 use serde_jsonlines::JsonLinesWriter;
 use std::fs::File;
 use std::io::{Seek, Write};
 use std::iter::empty;
-mod common;
-use common::*;
 
 #[test]
 fn test_write_one() {

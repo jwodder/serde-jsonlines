@@ -1,11 +1,11 @@
+mod common;
+use crate::common::*;
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::FileTouch;
 use assert_fs::NamedTempFile;
 use serde_jsonlines::{append_json_lines, json_lines, write_json_lines};
 use std::iter::empty;
 use std::path::Path;
-mod common;
-use common::*;
 
 #[test]
 fn test_write_json_lines() {

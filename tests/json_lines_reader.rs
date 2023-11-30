@@ -1,11 +1,11 @@
+mod common;
+use crate::common::*;
 use assert_fs::fixture::{FileTouch, FileWriteStr};
 use assert_fs::NamedTempFile;
 use serde_jsonlines::JsonLinesReader;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, ErrorKind, Result, Seek, SeekFrom, Write};
 use std::path::Path;
-mod common;
-use common::*;
 
 #[test]
 fn test_read_empty() {
