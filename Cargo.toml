@@ -34,12 +34,12 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [lints.rust]
 # Lint groups:
-future_incompatible = "deny"
-rust_2018_idioms = "deny"
-unused = { level = "deny", priority = 0 }
+future_incompatible = { level = "deny", priority = -1 }
+rust_2018_idioms = { level = "deny", priority = -1 }
+unused = { level = "deny", priority = -1 }
 
 # Set a lint in "unused" back to "warn" (to be denied again under CI):
-dead_code = { level = "warn", priority = 5 }
+dead_code = "warn"
 
 # Deny various allow-by-default lints:
 macro_use_extern_crate = "deny"
@@ -53,7 +53,6 @@ unsafe_op_in_unsafe_fn = "deny"
 unused_import_braces = "deny"
 unused_lifetimes = "deny"
 unused_qualifications = "deny"
-unused_tuple_struct_fields = "deny"
 
 # Deny various warn-by-default lints:
 ambiguous_glob_reexports = "deny"
@@ -124,7 +123,7 @@ unescaped_backticks = "deny"
 
 [lints.clippy]
 # Deny all warn-by-default lints:
-all = "deny"
+all = { level = "deny", priority = -1 }
 
 # Warn on various allow-by-default lints (denied under CI):
 dbg_macro = "warn"
@@ -169,8 +168,8 @@ if_then_some_else_none = "deny"
 ignored_unit_patterns = "deny"
 impl_trait_in_params = "deny"
 implicit_clone = "deny"
-implied_bounds_in_impls = "deny"
 imprecise_flops = "deny"
+infinite_loop = "deny"
 index_refutable_slice = "deny"
 invalid_upcast_comparisons = "deny"
 items_after_statements = "deny"
