@@ -5,7 +5,7 @@ use futures_sink::Sink;
 use pin_project_lite::pin_project;
 use serde::{de::DeserializeOwned, Serialize};
 use std::io::Result;
-use std::marker::{PhantomData, Unpin};
+use std::marker::PhantomData;
 use std::pin::Pin;
 use std::task::{ready, Context, Poll};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, Lines};
