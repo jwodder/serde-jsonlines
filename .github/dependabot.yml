@@ -5,7 +5,7 @@ updates:
     allow:
       - dependency-type: all
     schedule:
-      interval: weekly
+      interval: monthly
     commit-message:
       prefix: "[cargo]"
       include: scope
