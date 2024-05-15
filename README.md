@@ -6,11 +6,12 @@
 
 [GitHub](https://github.com/jwodder/serde-jsonlines) | [crates.io](https://crates.io/crates/serde-jsonlines) | [Documentation](https://docs.rs/serde-jsonlines) | [Issues](https://github.com/jwodder/serde-jsonlines/issues) | [Changelog](https://github.com/jwodder/serde-jsonlines/blob/master/CHANGELOG.md)
 
-JSON Lines (a.k.a. newline-delimited JSON) is a simple format for storing
-sequences of JSON values in which each value is serialized on a single line and
-terminated by a newline sequence.  The `serde-jsonlines` crate provides
-functionality for reading & writing these documents (whether all at once or
-line by line) using `serde`'s serialization & deserialization features.
+[JSON Lines](https://jsonlines.org) (a.k.a. newline-delimited JSON) is a simple
+format for storing sequences of JSON values in which each value is serialized
+on a single line and terminated by a newline sequence.  The `serde-jsonlines`
+crate provides functionality for reading & writing these documents (whether all
+at once or line by line) using `serde`'s serialization & deserialization
+features.
 
 Basic usage involves simply importing the `BufReadExt` or `WriteExt` extension
 trait and then using the `json_lines()` or `write_json_lines()` method on a
