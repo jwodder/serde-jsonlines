@@ -44,7 +44,6 @@ dead_code = "warn"
 # Deny various allow-by-default lints:
 macro_use_extern_crate = "deny"
 missing_debug_implementations = "deny"
-pointer_structural_match = "deny"
 single_use_lifetimes = "deny"
 trivial_casts = "deny"
 unreachable_pub = "deny"
