@@ -1,4 +1,3 @@
-#![cfg(feature = "async")]
 #![cfg_attr(docsrs, doc(cfg(feature = "async")))]
 use futures_core::Stream;
 use futures_sink::Sink;
