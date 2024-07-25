@@ -3,6 +3,7 @@ v0.6.0 (in development)
 - Replaced `futures` and `tokio-stream` dependencies with `futures-core` and
   `futures-sink`.  This is more lightweight and should fix a problem with the
   `Sink` and `Stream` traits not being hyperlinked on docs.rs.
+- Increased MSRV to 1.74
 
 v0.5.0 (2023-11-22)
 -------------------
