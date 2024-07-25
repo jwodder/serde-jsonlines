@@ -1,5 +1,5 @@
-v0.6.0 (in development)
------------------------
+v0.6.0 (2024-07-25)
+-------------------
 - Replaced `futures` and `tokio-stream` dependencies with `futures-core` and
   `futures-sink`.  This is more lightweight and should fix a problem with the
   `Sink` and `Stream` traits not being hyperlinked on docs.rs.
