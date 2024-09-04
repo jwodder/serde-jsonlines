@@ -180,6 +180,15 @@ pin_project! {
     }
 }
 
+impl<R, T> JsonLinesStream<R, T>
+where
+    R: AsyncBufRead + Unpin,
+{
+    pub fn into_inner(self) -> R {
+        self.inner.into_inner()
+    }
+}
+
 impl<R: AsyncBufRead, T> Stream for JsonLinesStream<R, T>
 where
     T: DeserializeOwned,
@@ -361,6 +370,12 @@ pin_project! {
         buffer: Option<Vec<u8>>,
         offset: usize,
         _input: PhantomData<T>,
+    }
+}
+
+impl<W, T> JsonLinesSink<W, T> {
+    pub fn into_inner(self) -> W {
+        self.inner
     }
 }
 
