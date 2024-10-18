@@ -12,8 +12,8 @@ categories = ["asynchronous", "encoding", "parser-implementations"]
 exclude = ["/.*"]
 
 [dependencies]
-futures-core = { version = "0.3.29", default-features = false, optional = true }
-futures-sink = { version = "0.3.29", default-features = false, optional = true }
+futures-core = { version = "0.3.31", default-features = false, optional = true }
+futures-sink = { version = "0.3.31", default-features = false, optional = true }
 pin-project-lite = { version = "0.2.9", optional = true }
 serde = "1.0.147"
 serde_json = "1.0.87"
