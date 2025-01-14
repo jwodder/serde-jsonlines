@@ -1,5 +1,5 @@
-v0.7.0 (in development)
------------------------
+v0.7.0 (2025-01-14)
+-------------------
 - Gave `JsonLinesIter` `new()`, `get_ref()`, `get_mut()`, and `into_inner()` methods
 
 v0.6.0 (2024-07-25)
