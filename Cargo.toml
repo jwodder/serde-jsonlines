@@ -1,6 +1,6 @@
 [package]
 name = "serde-jsonlines"
-version = "0.6.0"
+version = "0.7.0-dev"
 edition = "2021"
 rust-version = "1.74"
 description = "Read & write JSON Lines documents"

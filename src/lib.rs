@@ -359,6 +359,31 @@ pub struct JsonLinesIter<R, T> {
     _output: PhantomData<T>,
 }
 
+impl<R, T> JsonLinesIter<R, T> {
+    /// Construct a new `JsonLinesIter` from a [`std::io::BufRead`] instance
+    pub fn new(reader: R) -> Self {
+        JsonLinesIter {
+            reader: JsonLinesReader::new(reader),
+            _output: PhantomData,
+        }
+    }
+
+    /// Consume the `JsonLinesIter` and return the underlying reader
+    pub fn into_inner(self) -> R {
+        self.reader.into_inner()
+    }
+
+    /// Get a reference to the underlying reader
+    pub fn get_ref(&self) -> &R {
+        self.reader.get_ref()
+    }
+
+    /// Get a mutable reference to the underlying reader
+    pub fn get_mut(&mut self) -> &mut R {
+        self.reader.get_mut()
+    }
+}
+
 impl<R, T> Iterator for JsonLinesIter<R, T>
 where
     T: DeserializeOwned,
@@ -516,7 +541,7 @@ pub trait BufReadExt: BufRead {
     where
         Self: Sized,
     {
-        JsonLinesReader::new(self).read_all()
+        JsonLinesIter::new(self)
     }
 }
 
