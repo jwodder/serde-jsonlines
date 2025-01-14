@@ -1,3 +1,7 @@
+v0.7.0 (in development)
+-----------------------
+- Gave `JsonLinesIter` `new()`, `get_ref()`, `get_mut()`, and `into_inner()` methods
+
 v0.6.0 (2024-07-25)
 -------------------
 - Replaced `futures` and `tokio-stream` dependencies with `futures-core` and
