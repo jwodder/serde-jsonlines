@@ -61,10 +61,10 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Build crate
-        run: cargo hack --feature-powerset build --all-targets --verbose
+        run: cargo hack --workspace --feature-powerset build --all-targets --verbose
 
       - name: Test crate
-        run: cargo hack --feature-powerset test --verbose
+        run: cargo hack --workspace --feature-powerset test --verbose
 
   minimal-versions:
     runs-on: ubuntu-latest
@@ -91,10 +91,10 @@ jobs:
           tool: cargo-hack,cargo-minimal-versions
 
       - name: Build crate
-        run: cargo minimal-versions --direct --feature-powerset build --all-targets --verbose
+        run: cargo minimal-versions --direct --workspace --feature-powerset build --all-targets --verbose
 
       - name: Test crate
-        run: cargo minimal-versions --direct --feature-powerset test --verbose
+        run: cargo minimal-versions --direct --workspace --feature-powerset test --verbose
 
   coverage:
     # This is separate from the main tests because cargo-llvm-cov doesn't run
@@ -120,7 +120,7 @@ jobs:
           tool: cargo-llvm-cov
 
       - name: Test with coverage
-        run: cargo llvm-cov --all-features --lcov --output-path lcov.info
+        run: cargo llvm-cov --workspace --all-features --lcov --output-path lcov.info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -149,10 +149,13 @@ jobs:
         uses: taiki-e/install-action@cargo-hack
 
       - name: Check code
-        run: cargo hack --feature-powerset clippy --all-targets -- -Dwarnings
+        run: cargo hack --workspace --feature-powerset clippy -- -Dwarnings
+
+      - name: Check tests & examples
+        run: cargo hack --workspace --feature-powerset clippy --tests --examples -- -Dwarnings
 
       - name: Check formatting
-        run: cargo fmt --check
+        run: cargo fmt --all --check
 
   docs:
     runs-on: ubuntu-latest
@@ -172,6 +175,6 @@ jobs:
       - name: Check docs
         run: cargo doc --no-deps --all-features
         env:
-          RUSTDOCFLAGS: -Dwarnings
+          RUSTDOCFLAGS: -Dwarnings --cfg docsrs
 
 # vim:set et sts=2:
