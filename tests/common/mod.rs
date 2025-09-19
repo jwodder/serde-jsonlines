@@ -7,6 +7,7 @@ pub(crate) struct Structure {
     pub(crate) on: bool,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub(crate) struct Point {
     pub(crate) x: i32,
