@@ -1,3 +1,7 @@
+v0.8.0 (in development)
+-----------------------
+- Increased MSRV to 1.85
+
 v0.7.0 (2025-01-14)
 -------------------
 - Gave `JsonLinesIter` `new()`, `get_ref()`, `get_mut()`, and `into_inner()` methods
