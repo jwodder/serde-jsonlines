@@ -1,8 +1,8 @@
 [package]
 name = "serde-jsonlines"
-version = "0.7.0"
+version = "0.8.0-dev"
 edition = "2021"
-rust-version = "1.74"
+rust-version = "1.85"
 description = "Read & write JSON Lines documents"
 authors = ["John Thorvald Wodder II <serde-jsonlines@varonathe.org>"]
 repository = "https://github.com/jwodder/serde-jsonlines"
