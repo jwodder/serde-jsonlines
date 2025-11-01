@@ -1,8 +1,8 @@
 #![cfg(feature = "async")]
 mod common;
 use crate::common::*;
-use assert_fs::fixture::{FileTouch, FileWriteStr};
 use assert_fs::NamedTempFile;
+use assert_fs::fixture::{FileTouch, FileWriteStr};
 use futures_util::{StreamExt, TryStreamExt};
 use serde_jsonlines::AsyncJsonLinesReader;
 use std::io::{ErrorKind, SeekFrom};

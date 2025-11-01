@@ -1,10 +1,10 @@
 #![cfg(feature = "async")]
 mod common;
 use crate::common::*;
+use assert_fs::NamedTempFile;
 use assert_fs::assert::PathAssert;
 use assert_fs::fixture::FileTouch;
-use assert_fs::NamedTempFile;
-use futures_util::{stream::empty, SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt, stream::empty};
 use serde_jsonlines::{AsyncBufReadJsonLines, AsyncWriteJsonLines};
 use std::path::Path;
 use tokio::fs::File;

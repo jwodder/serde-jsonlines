@@ -1,7 +1,7 @@
 [package]
 name = "serde-jsonlines"
 version = "0.8.0-dev"
-edition = "2021"
+edition = "2024"
 rust-version = "1.85"
 description = "Read & write JSON Lines documents"
 authors = ["John Thorvald Wodder II <serde-jsonlines@varonathe.org>"]
