@@ -1,9 +1,9 @@
 #![cfg(feature = "async")]
 mod common;
 use crate::common::*;
-use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
-use futures_util::{stream::empty, SinkExt};
+use assert_fs::assert::PathAssert;
+use futures_util::{SinkExt, stream::empty};
 use serde_jsonlines::AsyncJsonLinesWriter;
 use std::io::SeekFrom;
 use std::pin::Pin;

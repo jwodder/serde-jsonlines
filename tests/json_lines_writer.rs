@@ -1,7 +1,7 @@
 mod common;
 use crate::common::*;
-use assert_fs::assert::PathAssert;
 use assert_fs::NamedTempFile;
+use assert_fs::assert::PathAssert;
 use serde_jsonlines::JsonLinesWriter;
 use std::fs::File;
 use std::io::{Seek, Write};

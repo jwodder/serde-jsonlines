@@ -1,7 +1,7 @@
 mod common;
 use crate::common::*;
-use assert_fs::fixture::{FileTouch, FileWriteStr};
 use assert_fs::NamedTempFile;
+use assert_fs::fixture::{FileTouch, FileWriteStr};
 use serde_jsonlines::JsonLinesReader;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, ErrorKind, Result, Seek, SeekFrom, Write};

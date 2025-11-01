@@ -62,7 +62,7 @@
 //! }
 //! ```
 
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Result, Write};
 use std::marker::PhantomData;
